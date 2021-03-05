@@ -4,6 +4,8 @@ import logging
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
 
+from datasets import get_dataset
+from constants import *
 
 @click.command()
 @click.argument('input_filepath', type=click.Path(exists=True))
@@ -27,4 +29,9 @@ if __name__ == '__main__':
     # load up the .env entries as environment variables
     load_dotenv(find_dotenv())
 
-    main()
+    raw_data_folder = f"{project_dir}/data/raw"
+
+    dataset_CIFAR10 = get_dataset(name=CIFAR10, root=raw_data_folder)
+    dataset_EMNIST = get_dataset(name=EMNIST, root=raw_data_folder)
+
+    # main()
