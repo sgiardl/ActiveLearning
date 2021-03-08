@@ -3,10 +3,9 @@ import os
 from src.data.datasets import get_dataset
 from src.data.constants import *
 from src.models.constants import *
-from src.models.train_model import train_model, get_transforms#, collate_fn
+from src.models.train_model import train_model, get_transforms
 
 from torch.utils.data import DataLoader
-from torchvision import transforms
 import torch
 
 
@@ -36,14 +35,14 @@ if __name__ == '__main__':
 
     raw_data_folder = f"{os.getcwd()}/data/raw"
 
-    dataset = get_dataset(name=CIFAR10, root=raw_data_folder, transforms=transforms.ToTensor())
+    dataset = get_dataset(name=CIFAR10, root=raw_data_folder, transforms=get_transforms())
 
-    data_loader = DataLoader(dataset, batch_size=1, shuffle=True, num_workers=1)#, collate_fn=collate_fn)
+    data_loader = DataLoader(dataset, batch_size=10, shuffle=True, num_workers=1)
 
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
     file_name = 'model'
 
-    train_model(epochs=10, data_loader=data_loader,
+    train_model(epochs=2, data_loader=data_loader,
                 device=device, file_name=file_name,
                 model_name=RESNET34)

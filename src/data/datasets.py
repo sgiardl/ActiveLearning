@@ -21,5 +21,5 @@ def get_dataset(name, root, transforms=None, download=True):
                                 transform=transforms, download=download)
 
     else:
-        return datasets.EMNIST(root=root, split='mnist',
+        return datasets.EMNIST(root=root, split='byclass',
                                transform=transforms, download=download)
