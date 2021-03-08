@@ -10,6 +10,8 @@ import torchvision.transforms as transforms
 
 import matplotlib.pyplot as plt
 
+from tqdm import tqdm
+
 from src.models.constants import *
 MODELS = [RESNET34, MOBILENETV2]
 
@@ -36,14 +38,27 @@ def get_transforms():
     """
     Get transforms to apply to the data.
 
+    Transform # 1 : convert image to RGB (3-channels),
+                    useful in case the input data is 1-channel only
+
+    Transform # 2 : convert image to pytorch tensors
+
     :return: Composed transforms
+             Type : torchvision.transforms.transforms.Compose
     """
-    custom_transforms = []
+
+    # Initialize empty list
+    transforms_list = []
+
     # Convert images to RGB (3-channels) since models used expect 3 channels as input.
     # Needed for 1 channel datasets, such as EMNIST.
-    custom_transforms.append(transforms.Lambda(lambda image: image.convert('RGB')))
-    custom_transforms.append(transforms.ToTensor())
-    return transforms.Compose(custom_transforms)
+    transforms_list.append(transforms.Lambda(lambda image: image.convert('RGB')))
+
+    # Convert images to pytorch tensors
+    transforms_list.append(transforms.ToTensor())
+
+    # Return composed transforms
+    return transforms.Compose(transforms_list)
 
 def train_model(epochs, data_loader, file_name, model_name):
     """
@@ -70,10 +85,16 @@ def train_model(epochs, data_loader, file_name, model_name):
 
     len_data_loader = len(data_loader)
 
+    loss = 0
     loss_list = []
 
     for epoch in range(epochs):
         model.train()
+
+        pbar = tqdm(desc=f'Epoch {epoch}',
+                    total=len_data_loader,
+                    leave=True,
+                    postfix=f'Loss: {loss:.5f}')
 
         for i, (images, labels) in enumerate(data_loader):
             images, labels = images.to(device), labels.to(device)
@@ -90,8 +111,10 @@ def train_model(epochs, data_loader, file_name, model_name):
             loss.backward()
             optimizer.step()
 
-            if i % 100 == 0:
-                print(f'[Epoch: {epoch}] Iteration: {i}/{len_data_loader}, Loss: {loss}')
+            pbar.set_postfix_str(f'Loss: {loss:.5f}')
+            pbar.update()
+
+        pbar.__del__()
 
     plt.plot(loss_list)
     plt.title('Loss per iteration')
