@@ -69,58 +69,97 @@ def train_model(epochs, data_loader, file_name, model_name):
     :param file_name: str, file name with which to save the trained model
     :param model_name: str, name of the model (RESNET34 or MOBILENETV2)
     """
+
+    # Flag to enable the inbuilt cudnn auto-tuner
+    # to find the best algorithm to use for the hardware used
     cudnn.benchmark = True
 
+    # Number of classes in the data_loader dataset
     num_classes = len(data_loader.dataset.class_to_idx)
 
+    # Get model and set last fully-connected layer with the right
+    # number of classes
     model = load_zoo_models(model_name, num_classes)
 
+    # Define loss function
     criterion = torch.nn.CrossEntropyLoss()
 
+    # Find which parameters to train (those with .requires_grad = True)
     params = [p for p in model.parameters() if p.requires_grad]
+
+    # Define stochastic gradient descent optimizer
     optimizer = torch.optim.SGD(params, lr=LEARNING_RATE, momentum=MOMENTUM)
 
+    # Define device as the GPU if available, else use the CPU
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+
+    # Send the model to the device
     model.to(device)
 
+    # Get length of data_loader once
     len_data_loader = len(data_loader)
 
+    # Initialize loss = 0 and loss_list as a blank list
     loss = 0
     loss_list = []
 
-    for epoch in range(epochs):
-        model.train()
+    # Specify that the model will be trained
+    model.train()
 
+    # Main training loop, loop through each epoch
+    for epoch in range(epochs):
+        # Declare tqdm progress bar for the current epoch
         pbar = tqdm(desc=f'Epoch {epoch}',
                     total=len_data_loader,
                     leave=True,
                     postfix=f'Loss: {loss:.5f}')
 
+        # Loop through each mini-batch from the data loader
         for i, (images, labels) in enumerate(data_loader):
+            # Send images and labels to the device
             images, labels = images.to(device), labels.to(device)
 
+            # Reset all gradients to zero
             optimizer.zero_grad()
-            model.eval()
 
+            # Perform a forward pass and calculate log(preds)
             log_preds = model.forward(images)
+
+            # Calculate the preds with exp(log(preds))
             preds = torch.exp(log_preds)
+
+            # Get the maximum prediction & class associated with
+            # the maximum prediction
             max_pred, max_class = preds.topk(1, dim=1)
+
+            # Calculate the loss, comparing log(preds) with the
+            # ground truth labels
             loss = criterion(log_preds, labels)
+
+            # Appending the current loss to the loss list
             loss_list.append(loss)
 
+            # Perform a backward pass (calculate gradient)
             loss.backward()
+
+            # Perform a parameter update based on the current gradient
             optimizer.step()
 
+            # Update progress bar
             pbar.set_postfix_str(f'Loss: {loss:.5f}')
             pbar.update()
 
+        # Delete progress bar, needed to properly display
+        # one progress bar per epoch
         pbar.__del__()
 
+    # Display and format chart of loss per iteration
     plt.plot(loss_list)
     plt.title('Loss per iteration')
     plt.xlabel('Iteration')
     plt.ylabel('Loss')
     plt.show()
 
+    # If file_name is specified, save the trained model
     if file_name is not None:
         torch.save(model.state_dict(), f'{os.getcwd()}/models/{file_name}')
