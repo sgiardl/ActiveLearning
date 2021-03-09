@@ -78,9 +78,9 @@ class Expert:
         # We turn the indexes list into a tensor
         self.labeled_idx = tensor(self.labeled_idx)
 
-    def add_anotations(self, unlabeled_data, sofmax_outputs, n):
+    def add_labels(self, unlabeled_data, sofmax_outputs, n):
         """
-        Add anotations based on prioritisation criterion used
+        Add labels based on prioritisation criterion used
 
         :param unlabeled_data: Dataloader with a single batch with all unlabeled images
         :param sofmax_outputs: Softmax outputs of our model of the unlabeld data
