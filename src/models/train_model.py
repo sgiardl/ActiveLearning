@@ -100,20 +100,17 @@ def train_model(epochs, data_loader, file_name, model_name):
     len_data_loader = len(data_loader)
 
     # Initialize loss = 0 and loss_list as a blank list
-    loss = 0
     loss_list = []
 
     # Specify that the model will be trained
     model.train()
 
+    # Declare tqdm progress bar for the current epoch
+    pbar = tqdm(total=len_data_loader, leave=False,
+                desc='Epoch 0', postfix='Loss: 0')
+
     # Main training loop, loop through each epoch
     for epoch in range(epochs):
-        # Declare tqdm progress bar for the current epoch
-        pbar = tqdm(desc=f'Epoch {epoch}',
-                    total=len_data_loader,
-                    leave=True,
-                    postfix=f'Loss: {loss:.5f}')
-
         # Loop through each mini-batch from the data loader
         for i, (images, labels) in enumerate(data_loader):
             # Send images and labels to the device
@@ -146,12 +143,12 @@ def train_model(epochs, data_loader, file_name, model_name):
             optimizer.step()
 
             # Update progress bar
+            pbar.set_description_str(f'Epoch {epoch}')
             pbar.set_postfix_str(f'Loss: {loss:.5f}')
             pbar.update()
 
-        # Delete progress bar, needed to properly display
-        # one progress bar per epoch
-        pbar.__del__()
+        # Reset progress bar after epoch completion
+        pbar.reset()
 
     # Display and format chart of loss per iteration
     plt.plot(loss_list)
