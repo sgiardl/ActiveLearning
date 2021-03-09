@@ -2,7 +2,7 @@ import torchvision.datasets as datasets
 from src.data.constants import *
 DATASETS = [CIFAR10, EMNIST]
 
-def get_dataset(name, root, download=True):
+def get_dataset(name, root, transforms=None, download=True):
     """
     Downloads dataset from torchvision
 
@@ -12,11 +12,14 @@ def get_dataset(name, root, download=True):
                            If dataset is already downloaded, it is loaded from root directory.
     :return: PyTorch Dataset
     """
+
     if name not in DATASETS:
         raise Exception(f"The name provided must be in {DATASETS}")
 
     elif name == CIFAR10:
-        return datasets.CIFAR10(root=root, download=download)
+        return datasets.CIFAR10(root=root,
+                                transform=transforms, download=download)
 
     else:
-        return datasets.EMNIST(root=root, split='mnist', download=download)
+        return datasets.EMNIST(root=root, split='byclass',
+                               transform=transforms, download=download)
