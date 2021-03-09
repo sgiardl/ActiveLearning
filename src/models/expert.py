@@ -32,7 +32,7 @@ class Expert:
 
         # We "annotate" n images of each class
         self.labeled = []
-        self.initialize_anotations(dataset, n)
+        self.initialize_labels(dataset, n)
 
     def get_class_distribution(self, dataset):
 
@@ -53,7 +53,7 @@ class Expert:
 
         return count_dict
 
-    def initialize_anotations(self, dataset, n):
+    def initialize_labels(self, dataset, n):
         """
         Selects randomly n indexes from each class of a dataset
 
