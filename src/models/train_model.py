@@ -60,6 +60,7 @@ def get_transforms():
     # Return composed transforms
     return transforms.Compose(transforms_list)
 
+
 def train_model(epochs, data_loader, file_name, model_name):
     """
     Trains the model and saves the trained model.
