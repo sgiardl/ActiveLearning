@@ -3,9 +3,11 @@ This file stores the Expert class.
 It simulates an expert who labels item from the dataset.
 The indices are then fed to a Pytorch SubsetRandomSampler used by the training DataLoader
 """
-from numpy import array
+
 from numpy.random import choice
 from torch import tensor, nonzero
+from torch.utils.data import SubsetRandomSampler
+import matplotlib.pyplot as plt
 
 
 class Expert:
@@ -30,9 +32,14 @@ class Expert:
             if v < n:
                 raise Exception(f"Class {k} has less the {n} items")
 
-        # We "annotate" n images of each class
-        self.labeled = []
+        # We "label" n images of each class
+        self.labeled_idx = []
         self.initialize_labels(dataset, n)
+        self.labeled_history = {k: [n] for k in self.idx2class.keys()}
+
+        # We initialize the sampler object
+        self.sampler = None
+        self.update_expert_sampler()
 
     def get_class_distribution(self, dataset):
 
@@ -66,16 +73,66 @@ class Expert:
         # For each class we select n item randomly without replacement
         for k, _ in self.idx2class.items():
             class_idx = (nonzero(targets == k)).squeeze()
-            self.labeled.extend(choice(class_idx, n, replace=False))
+            self.labeled_idx.extend(choice(class_idx, n, replace=False))
 
         # We turn the indexes list into a tensor
-        self.labeled = tensor(self.labeled)
+        self.labeled_idx = tensor(self.labeled_idx)
 
-    def add_anotations(self, sofmax_outputs, n):
+    def add_anotations(self, unlabeled_data, sofmax_outputs, n):
         """
         Add anotations based on prioritisation criterion used
 
-        :param sofmax_outputs: softmax outputs of our model of the unlabeld data
-        :param n: number of items to label
+        :param unlabeled_data: Dataloader with a single batch with all unlabeled images
+        :param sofmax_outputs: Softmax outputs of our model of the unlabeld data
+        :param n: Number of items to label
         """
+        # !! TO DO  !! #
+
+        # Evaluate prioritisation score of each image using the softmax ouputs and prioritisation criterion
+
+        # Append the idx of the n most important images based on their prioritisation score
+        # self.labeled_idx.append(...)
+
+        # Update the labeled history. Append 0 to the classes without new labeled images.
+
+        # Update the expert sampler
+        self.update_expert_sampler()
+
         raise NotImplementedError
+
+    def show_labels_history(self, show=True, save_path=None, format='pdf'):
+        """
+        Plot the growth of labeled items per class throughout the active learning iteration
+
+        :param show: Boolean indicating we want to show the figure
+        :param save_path: Path to save the image. The paths must include the file name. (None == unsaved)
+        :param format: Format used to save the figure
+        """
+
+        # We save the number of active learning iterations done
+        x = range(len(self.labeled_history[0]))
+        for k, history in self.labeled_history.items():
+            plt.plot(x, history, label=self.idx2class[k])
+
+        # We set x-axis steps
+        plt.xticks(x)
+
+        # We set axis labels and legend
+        plt.ylabel('Nbr. of labeled images')
+        plt.xlabel('Active learning iterations')
+        plt.legend()
+
+        # We show the plot
+        if show:
+            plt.show()
+
+        # We save it
+        if save_path is not None:
+            plt.savefig(f"{save_path}.{format}")
+
+    def update_expert_sampler(self):
+        """
+        Update the PyTorch sampler object to give to the dataloader for the training
+        """
+        self.sampler = SubsetRandomSampler(self.labeled_idx)
+
