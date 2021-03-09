@@ -105,7 +105,7 @@ def train_model(epochs, data_loader, file_name, model_name):
     # Specify that the model will be trained
     model.train()
 
-    # Declare tqdm progress bar for the current epoch
+    # Declare tqdm progress bar
     pbar = tqdm(total=len_data_loader, leave=False,
                 desc='Epoch 0', postfix='Loss: 0')
 
