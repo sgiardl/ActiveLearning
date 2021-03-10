@@ -30,7 +30,7 @@ class Expert:
         class_dist = self.get_class_distribution(dataset)
         for k, v in class_dist.items():
             if v < n:
-                raise Exception(f"Class {k} has less the {n} items")
+                raise Exception(f"Class {k} has less than {n} items")
 
         # We "label" n images of each class
         self.labeled_idx = []
@@ -38,7 +38,6 @@ class Expert:
         self.labeled_history = {k: [n] for k in self.idx2class.keys()}
 
         # We initialize the sampler object
-        self.sampler = None
         self.update_expert_sampler()
 
     def get_class_distribution(self, dataset):
@@ -70,7 +69,7 @@ class Expert:
         # We save targets in a tensor
         targets = tensor(dataset.targets)
 
-        # For each class we select n item randomly without replacement
+        # For each class we select n items randomly without replacement
         for k, _ in self.idx2class.items():
             class_idx = (nonzero(targets == k)).squeeze()
             self.labeled_idx.extend(choice(class_idx, n, replace=False))
@@ -118,7 +117,7 @@ class Expert:
         plt.xticks(x)
 
         # We set axis labels and legend
-        plt.ylabel('Nbr. of labeled images')
+        plt.ylabel('Number of labeled images')
         plt.xlabel('Active learning iterations')
         plt.legend()
 
