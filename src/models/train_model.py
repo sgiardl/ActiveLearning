@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 from src.models.constants import *
-MODELS = [RESNET34, MOBILENETV2]
+MODELS = [RESNET34, SQUEEZE_NET_1_1]
 
 
 def load_zoo_models(name, num_classes, pretrained=False):
@@ -32,7 +32,8 @@ def load_zoo_models(name, num_classes, pretrained=False):
         return models.resnet34(pretrained, num_classes=num_classes)
 
     else:
-        return models.mobilenet_v2(pretrained, num_classes=num_classes)
+        return models.squeezenet1_1(pretrained, num_classes=num_classes)
+
 
 def get_transforms():
     """
