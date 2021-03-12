@@ -5,34 +5,13 @@ import os
 
 import torch
 import torch.backends.cudnn as cudnn
-import torchvision.models as models
 import torchvision.transforms as transforms
 
 import matplotlib.pyplot as plt
 
+from .constants import *
+from .model import load_zoo_models
 from tqdm import tqdm
-
-from src.models.constants import *
-MODELS = [RESNET34, SQUEEZE_NET_1_1]
-
-
-def load_zoo_models(name, num_classes, pretrained=False):
-    """
-    Loads model from torchvision
-
-    :param name: Name of the model must be in MODELS list
-    :param num_classes: Number of classes in the last fully connected layer (nn.Linear)
-    :param pretrained: bool indicating if we want the pretrained version of the model
-    :return: PyTorch Model
-    """
-    if name not in MODELS:
-        raise Exception(f"The name provided must be in {MODELS}")
-
-    elif name == RESNET34:
-        return models.resnet34(pretrained, num_classes=num_classes)
-
-    else:
-        return models.squeezenet1_1(pretrained, num_classes=num_classes)
 
 
 def get_transforms():
@@ -62,14 +41,15 @@ def get_transforms():
     return transforms.Compose(transforms_list)
 
 
-def train_model(epochs, data_loader, file_name, model_name):
+def train_model(epochs, data_loader, file_name, model_name, pretrained=False):
     """
     Trains the model and saves the trained model.
 
     :param epochs: int, number of epochs
     :param data_loader: DataLoader object
     :param file_name: str, file name with which to save the trained model
-    :param model_name: str, name of the model (RESNET34 or MOBILENETV2)
+    :param model_name: str, name of the model (RESNET34 or SQUEEZE_NET_1_1)
+    :param pretrained: bool, indicates if the model should be pretrained on ImageNet
     """
 
     # Flag to enable the inbuilt cudnn auto-tuner
@@ -81,7 +61,7 @@ def train_model(epochs, data_loader, file_name, model_name):
 
     # Get model and set last fully-connected layer with the right
     # number of classes
-    model = load_zoo_models(model_name, num_classes)
+    model = load_zoo_models(model_name, num_classes, pretrained=pretrained)
 
     # Define loss function
     criterion = torch.nn.CrossEntropyLoss()
