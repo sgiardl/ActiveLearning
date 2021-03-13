@@ -1,7 +1,6 @@
 import torchvision.datasets as datasets
-from typing import Sequence, Callable, Union
 from src.data.constants import *
-from typing import Union, Sequence
+from typing import Union, Sequence, Callable
 DATASETS = [CIFAR10, EMNIST]
 
 
