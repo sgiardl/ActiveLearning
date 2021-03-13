@@ -18,6 +18,9 @@ def load_zoo_models(name: str, num_classes: int, pretrained: bool = False) -> nn
     :param num_classes: Number of classes in the last fully connected layer (nn.Linear)
     :param pretrained: bool indicating if we want the pretrained version of the model on ImageNet
     :return: PyTorch Model
+
+    The finetuning procedure is inspired from :
+    https://pytorch.org/tutorials/beginner/finetuning_torchvision_models_tutorial.html
     """
     assert name in MODELS, f"The name provided must be in {MODELS}"
 
