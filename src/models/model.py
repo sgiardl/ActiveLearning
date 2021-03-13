@@ -19,8 +19,7 @@ def load_zoo_models(name: str, num_classes: int, pretrained: bool = False) -> nn
     :param pretrained: bool indicating if we want the pretrained version of the model on ImageNet
     :return: PyTorch Model
     """
-    if name not in MODELS:
-        raise Exception(f"The name provided must be in {MODELS}")
+    assert name in MODELS, f"The name provided must be in {MODELS}"
 
     if name == RESNET34:
         if pretrained and num_classes != NUM_CLASSES_IMAGENET:
