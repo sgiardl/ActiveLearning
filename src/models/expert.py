@@ -41,7 +41,7 @@ class Expert:
         # We initialize the sampler object
         self.update_expert_sampler()
 
-    def get_class_distribution(self, dataset: Dataset):
+    def get_class_distribution(self, dataset: Dataset) -> dict:
 
         """
         Count number of instances of each class in the dataset.
@@ -60,7 +60,7 @@ class Expert:
 
         return count_dict
 
-    def initialize_labels(self, dataset: Dataset, n: int):
+    def initialize_labels(self, dataset: Dataset, n: int) -> None:
         """
         Selects randomly n indexes from each class of a dataset
 
@@ -100,7 +100,7 @@ class Expert:
 
         raise NotImplementedError
 
-    def show_labels_history(self, show: bool = True, save_path: Union[str, None] = None, format: str = 'pdf'):
+    def show_labels_history(self, show: bool = True, save_path: Union[str, None] = None, format: str = 'pdf') -> None:
         """
         Plot the growth of labeled items per class throughout the active learning iteration
 
@@ -130,7 +130,7 @@ class Expert:
         if save_path is not None:
             plt.savefig(f"{save_path}.{format}")
 
-    def update_expert_sampler(self):
+    def update_expert_sampler(self) -> None:
         """
         Update the PyTorch sampler object to give to the dataloader for the training
         """
