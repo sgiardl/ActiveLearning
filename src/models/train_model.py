@@ -121,7 +121,7 @@ def train_model(epochs: int, data_loader: torch.utils.data.DataLoader, file_name
             loss = criterion(outputs, labels)
 
             # Appending the current loss to the loss list
-            loss_list.append(loss)
+            loss_list.append(loss.item())
 
             # Perform a backward pass (calculate gradient)
             loss.backward()
