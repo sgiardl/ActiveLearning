@@ -1,6 +1,6 @@
 import sys
 import os
-from src.data.datasets import get_dataset
+from src.data.datasets import get_dataset, split_dataset
 from src.data.constants import *
 from src.models.constants import *
 from src.models.train_model import train_model, get_transforms
@@ -39,6 +39,9 @@ if __name__ == '__main__':
                                 transforms=get_transforms(), train=True)
     dataset_test = get_dataset(name=dataset_name, root=f"{os.getcwd()}/data/raw",
                                transforms=get_transforms(), train=False)
+
+    dataset_train, dataset_valid = split_dataset(dataset_train, 0.1)
+
     expert = Expert(dataset_train, 2, None)
     data_loader_train = DataLoader(dataset_train, batch_size=10, shuffle=False, num_workers=1, sampler=expert.sampler)
     train_model(epochs=100, data_loader=data_loader_train, file_name='model',

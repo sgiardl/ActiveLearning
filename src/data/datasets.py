@@ -1,4 +1,7 @@
+import numpy as np
 import torchvision.datasets as datasets
+from torch.utils.data import Subset
+from sklearn.model_selection import StratifiedShuffleSplit
 from src.data.constants import *
 from typing import Union, Sequence, Callable
 DATASETS = [CIFAR10, EMNIST]
@@ -28,3 +31,27 @@ def get_dataset(name: str, root: str, transforms: Union[Sequence[Callable], Call
     else:
         return datasets.EMNIST(root=root, split='byclass',
                                transform=transforms, download=download, train=train)
+
+
+def split_dataset(dataset: datasets, split_size: float) -> (Subset, Subset):
+    '''
+    Splits a dataset into two subsets.
+
+    :param dataset: torchvision.datasets, input PyTorch dataset object to split
+    :param split_size: float, proportion of dataset to include in subset_2.
+                       The complement will be included in subset_1.
+    :return: tuple, subset_1 and subset_2
+    '''
+
+    strat_split = StratifiedShuffleSplit(n_splits=1, test_size=split_size)
+
+    y = dataset.targets
+    X = np.zeros(len(y))
+
+    for index_1, index_2 in strat_split.split(X, y):
+        break
+
+    subset_1 = Subset(dataset, index_1)
+    subset_2 = Subset(dataset, index_2)
+
+    return subset_1, subset_2

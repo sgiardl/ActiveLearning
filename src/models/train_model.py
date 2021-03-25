@@ -6,6 +6,7 @@ import os
 import torch
 import torch.backends.cudnn as cudnn
 import torchvision.transforms as transforms
+from torch.utils.data import Subset
 
 import matplotlib.pyplot as plt
 
@@ -59,7 +60,10 @@ def train_model(epochs: int, data_loader: torch.utils.data.DataLoader, file_name
     cudnn.benchmark = True
 
     # Number of classes in the data_loader dataset
-    num_classes = len(data_loader.dataset.class_to_idx)
+    if type(data_loader.dataset) == Subset:
+        num_classes = len(data_loader.dataset.dataset.class_to_idx)
+    else:
+        num_classes = len(data_loader.dataset.class_to_idx)
 
     # Get model and set last fully-connected layer with the right
     # number of classes
