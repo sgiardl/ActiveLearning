@@ -1,13 +1,17 @@
 import torchvision.datasets as datasets
 from src.data.constants import *
+from typing import Union, Sequence, Callable
 DATASETS = [CIFAR10, EMNIST]
 
-def get_dataset(name, root, transforms=None, download=True):
+
+def get_dataset(name: str, root: str, transforms: Union[Sequence[Callable], Callable] = None,
+                download: bool = True) -> datasets:
     """
     Downloads dataset from torchvision
 
     :param name: Name of the dataset must be in DATASETS list
     :param root: Path where the data shall be loaded/downloaded
+    :param transforms list of transforms or Compose of transforms
     :param download: Bool, if true, downloads the dataset and saves it in root directory.
                            If dataset is already downloaded, it is loaded from root directory.
     :return: PyTorch Dataset

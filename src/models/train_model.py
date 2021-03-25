@@ -5,36 +5,17 @@ import os
 
 import torch
 import torch.backends.cudnn as cudnn
-import torchvision.models as models
 import torchvision.transforms as transforms
 
 import matplotlib.pyplot as plt
 
+from .constants import *
+from .model import load_zoo_models
 from tqdm import tqdm
-
-from src.models.constants import *
-MODELS = [RESNET34, MOBILENETV2]
+from typing import Callable
 
 
-def load_zoo_models(name, num_classes, pretrained=False):
-    """
-    Loads model from torchvision
-
-    :param name: Name of the model must be in MODELS list
-    :param num_classes: Number of classes in the last fully connected layer (nn.Linear)
-    :param pretrained: bool indicating if we want the pretrained version of the model
-    :return: PyTorch Model
-    """
-    if name not in MODELS:
-        raise Exception(f"The name provided must be in {MODELS}")
-
-    elif name == RESNET34:
-        return models.resnet34(pretrained, num_classes=num_classes)
-
-    else:
-        return models.mobilenet_v2(pretrained, num_classes=num_classes)
-
-def get_transforms():
+def get_transforms() -> Callable:
     """
     Get transforms to apply to the data.
 
@@ -61,14 +42,16 @@ def get_transforms():
     return transforms.Compose(transforms_list)
 
 
-def train_model(epochs, data_loader, file_name, model_name):
+def train_model(epochs: int, data_loader: torch.utils.data.DataLoader, file_name: str,
+                model_name: str, pretrained: bool = False, **kwargs) -> torch.tensor:
     """
     Trains the model and saves the trained model.
 
     :param epochs: int, number of epochs
     :param data_loader: DataLoader object
     :param file_name: str, file name with which to save the trained model
-    :param model_name: str, name of the model (RESNET34 or MOBILENETV2)
+    :param model_name: str, name of the model (RESNET34 or SQUEEZE_NET_1_1)
+    :param pretrained: bool, indicates if the model should be pretrained on ImageNet
     """
 
     # Flag to enable the inbuilt cudnn auto-tuner
@@ -80,16 +63,17 @@ def train_model(epochs, data_loader, file_name, model_name):
 
     # Get model and set last fully-connected layer with the right
     # number of classes
-    model = load_zoo_models(model_name, num_classes)
+    model = load_zoo_models(model_name, num_classes, pretrained=pretrained)
 
-    # Define loss function
+    # Define loss function and softmax function for active learning criterion
     criterion = torch.nn.CrossEntropyLoss()
+    softmax = torch.nn.Softmax(dim=1)
 
     # Find which parameters to train (those with .requires_grad = True)
     params = [p for p in model.parameters() if p.requires_grad]
 
     # Define stochastic gradient descent optimizer
-    optimizer = torch.optim.SGD(params, lr=LEARNING_RATE, momentum=MOMENTUM)
+    optimizer = torch.optim.Adam(params, lr=kwargs.get('learning_rate', LEARNING_RATE))
 
     # Define device as the GPU if available, else use the CPU
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
@@ -120,19 +104,21 @@ def train_model(epochs, data_loader, file_name, model_name):
             # Reset all gradients to zero
             optimizer.zero_grad()
 
-            # Perform a forward pass and calculate log(preds)
-            log_preds = model.forward(images)
+            # Perform a forward pass
+            outputs = model.forward(images)
 
-            # Calculate the preds with exp(log(preds))
-            preds = torch.exp(log_preds)
+            # Calculate the softmax manually
+            # We can't take the softmax out of the cross entropy calculation
+            # We can't either apply softmax and log separately before using NLL loss
+            softmax_output = softmax(outputs)
 
             # Get the maximum prediction & class associated with
             # the maximum prediction
-            max_pred, max_class = preds.topk(1, dim=1)
+            # max_pred, max_class = preds.topk(1, dim=1)
 
             # Calculate the loss, comparing log(preds) with the
             # ground truth labels
-            loss = criterion(log_preds, labels)
+            loss = criterion(outputs, labels)
 
             # Appending the current loss to the loss list
             loss_list.append(loss)
@@ -140,7 +126,7 @@ def train_model(epochs, data_loader, file_name, model_name):
             # Perform a backward pass (calculate gradient)
             loss.backward()
 
-            # Perform a parameter update based on the current gradient
+            # Perform a parameter update based on the git current gradient
             optimizer.step()
 
             # Update progress bar
@@ -161,3 +147,5 @@ def train_model(epochs, data_loader, file_name, model_name):
     # If file_name is specified, save the trained model
     if file_name is not None:
         torch.save(model.state_dict(), f'{os.getcwd()}/models/{file_name}')
+
+    return softmax_output

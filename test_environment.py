@@ -34,6 +34,7 @@ if __name__ == '__main__':
     main()
 
     dataset = get_dataset(name=CIFAR10, root=f"{os.getcwd()}/data/raw", transforms=get_transforms())
-    expert = Expert(dataset, 200, None)
-    data_loader = DataLoader(dataset, batch_size=200, shuffle=False, num_workers=1, sampler=expert.sampler)
-    train_model(epochs=2, data_loader=data_loader, file_name='model', model_name=RESNET34)
+    expert = Expert(dataset, 2, None)
+    data_loader = DataLoader(dataset, batch_size=10, shuffle=False, num_workers=1, sampler=expert.sampler)
+    train_model(epochs=100, data_loader=data_loader, file_name='model',
+                model_name=SQUEEZE_NET_1_1, pretrained=True, learning_rate=0.0001)

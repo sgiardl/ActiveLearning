@@ -5,14 +5,15 @@ The indices are then fed to a Pytorch SubsetRandomSampler used by the training D
 """
 
 from numpy.random import choice
+from typing import Callable, Union
 from torch import tensor, nonzero
-from torch.utils.data import SubsetRandomSampler
+from torch.utils.data import SubsetRandomSampler, Dataset
 import matplotlib.pyplot as plt
 
 
 class Expert:
 
-    def __init__(self, dataset, n, prioritisation_criterion):
+    def __init__(self, dataset: Dataset, n: int, prioritisation_criterion: Callable[[tensor], tensor]):
 
         """
         Select randomly n items from each class of the training dataset.
@@ -40,7 +41,7 @@ class Expert:
         # We initialize the sampler object
         self.update_expert_sampler()
 
-    def get_class_distribution(self, dataset):
+    def get_class_distribution(self, dataset: Dataset) -> dict:
 
         """
         Count number of instances of each class in the dataset.
@@ -59,7 +60,7 @@ class Expert:
 
         return count_dict
 
-    def initialize_labels(self, dataset, n):
+    def initialize_labels(self, dataset: Dataset, n: int) -> None:
         """
         Selects randomly n indexes from each class of a dataset
 
@@ -99,7 +100,7 @@ class Expert:
 
         raise NotImplementedError
 
-    def show_labels_history(self, show=True, save_path=None, format='pdf'):
+    def show_labels_history(self, show: bool = True, save_path: Union[str, None] = None, format: str = 'pdf') -> None:
         """
         Plot the growth of labeled items per class throughout the active learning iteration
 
@@ -129,7 +130,7 @@ class Expert:
         if save_path is not None:
             plt.savefig(f"{save_path}.{format}")
 
-    def update_expert_sampler(self):
+    def update_expert_sampler(self) -> None:
         """
         Update the PyTorch sampler object to give to the dataloader for the training
         """
