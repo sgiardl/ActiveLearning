@@ -5,7 +5,7 @@ DATASETS = [CIFAR10, EMNIST]
 
 
 def get_dataset(name: str, root: str, transforms: Union[Sequence[Callable], Callable] = None,
-                download: bool = True) -> datasets:
+                download: bool = True, train: bool = True) -> datasets:
     """
     Downloads dataset from torchvision
 
@@ -14,6 +14,7 @@ def get_dataset(name: str, root: str, transforms: Union[Sequence[Callable], Call
     :param transforms list of transforms or Compose of transforms
     :param download: Bool, if true, downloads the dataset and saves it in root directory.
                            If dataset is already downloaded, it is loaded from root directory.
+    :param train: Bool, if true, creates dataset from training set, otherwise creates from test set.
     :return: PyTorch Dataset
     """
 
@@ -22,8 +23,8 @@ def get_dataset(name: str, root: str, transforms: Union[Sequence[Callable], Call
 
     elif name == CIFAR10:
         return datasets.CIFAR10(root=root,
-                                transform=transforms, download=download)
+                                transform=transforms, download=download, train=train)
 
     else:
         return datasets.EMNIST(root=root, split='byclass',
-                               transform=transforms, download=download)
+                               transform=transforms, download=download, train=train)

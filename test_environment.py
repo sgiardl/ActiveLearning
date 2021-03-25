@@ -33,8 +33,13 @@ def main():
 if __name__ == '__main__':
     main()
 
-    dataset = get_dataset(name=CIFAR10, root=f"{os.getcwd()}/data/raw", transforms=get_transforms())
-    expert = Expert(dataset, 2, None)
-    data_loader = DataLoader(dataset, batch_size=10, shuffle=False, num_workers=1, sampler=expert.sampler)
-    train_model(epochs=100, data_loader=data_loader, file_name='model',
+    dataset_name = CIFAR10
+
+    dataset_train = get_dataset(name=dataset_name, root=f"{os.getcwd()}/data/raw",
+                                transforms=get_transforms(), train=True)
+    dataset_test = get_dataset(name=dataset_name, root=f"{os.getcwd()}/data/raw",
+                               transforms=get_transforms(), train=False)
+    expert = Expert(dataset_train, 2, None)
+    data_loader_train = DataLoader(dataset_train, batch_size=10, shuffle=False, num_workers=1, sampler=expert.sampler)
+    train_model(epochs=100, data_loader=data_loader_train, file_name='model',
                 model_name=SQUEEZE_NET_1_1, pretrained=True, learning_rate=0.0001)
