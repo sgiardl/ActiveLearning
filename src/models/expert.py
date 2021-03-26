@@ -93,21 +93,22 @@ class Expert:
         if self.criterion == 'least_confident':
             softmax_outputs_max, _ = torch.max(1-softmax_outputs, dim=1)
             _, max_uncertainty_indices = torch.sort(-softmax_outputs_max)
-            self.labeled_idx.append(max_uncertainty_indices[0:n])
+            prioritisation_indices = max_uncertainty_indices[0:n]
 
         elif self.criterion == 'margin_sampling':
             sort_softmax_outputs, _ = torch.sort(-softmax_outputs)
             margin = - sort_softmax_outputs[:, 0] + sort_softmax_outputs[:, 1]
             _, min_margin_indices = torch.sort(margin)
-            self.labeled_idx.append(min_margin_indices[0:n])
+            prioritisation_indices = min_margin_indices[0:n]
 
         elif self.criterion == 'entropy_sampling':
             softmax_outputs_entropy = Categorical(probs=softmax_outputs).entropy()
             _, max_entropy_indices = torch.sort(-softmax_outputs_entropy)
-            self.labeled_idx.append(max_entropy_indices[0:n])
+            prioritisation_indices = max_entropy_indices[0:n]
 
         # Append the idx of the n most important images based on their prioritisation score
         # self.labeled_idx.append(...)
+        self.labeled_idx.append(prioritisation_indices)
 
         # Update the labeled history. Append 0 to the classes without new labeled images.
 
