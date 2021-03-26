@@ -96,6 +96,7 @@ def train_model(epochs: int, data_loader: torch.utils.data.DataLoader, file_name
 
     # Main training loop, loop through each epoch
     for epoch in range(epochs):
+        softmax_output = torch.empty(len_data_loader*num_classes, num_classes, dtype=torch.float)
         # Loop through each mini-batch from the data loader
         for i, (images, labels) in enumerate(data_loader):
             # Send images and labels to the device
@@ -110,7 +111,8 @@ def train_model(epochs: int, data_loader: torch.utils.data.DataLoader, file_name
             # Calculate the softmax manually
             # We can't take the softmax out of the cross entropy calculation
             # We can't either apply softmax and log separately before using NLL loss
-            softmax_output = softmax(outputs)
+            batch_size = outputs.shape[1]
+            softmax_output[i*batch_size:(i+1)*batch_size,:] = softmax(outputs)
 
             # Get the maximum prediction & class associated with
             # the maximum prediction
