@@ -75,7 +75,7 @@ class Expert:
         """
         # We save targets in a tensor
         if type(dataset) == Subset:
-            targets = tensor(dataset.dataset.targets)
+            targets = tensor([dataset.dataset.targets[i] for i in dataset.indices])
         else:
             targets = tensor(dataset.targets)
 

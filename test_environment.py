@@ -40,7 +40,7 @@ if __name__ == '__main__':
     dataset_test = get_dataset(name=dataset_name, root=f"{os.getcwd()}/data/raw",
                                transforms=get_transforms(), train=False)
 
-    dataset_train, dataset_valid = split_dataset(dataset_train, 0.1)
+    dataset_test, dataset_valid = split_dataset(dataset_test, 0.1)
 
     expert = Expert(dataset_train, 2, None)
     data_loader_train = DataLoader(dataset_train, batch_size=10, shuffle=False, num_workers=1, sampler=expert.sampler)
