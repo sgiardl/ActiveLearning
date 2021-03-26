@@ -9,7 +9,8 @@ from typing import Callable, Union
 from torch import tensor, nonzero
 from torch.utils.data import SubsetRandomSampler, Dataset
 import matplotlib.pyplot as plt
-
+import torch
+from torch.distributions import Categorical
 
 class Expert:
 
@@ -89,6 +90,18 @@ class Expert:
         # !! TO DO  !! #
 
         # Evaluate prioritisation score of each image using the softmax ouputs and prioritisation criterion
+        if self.criterion == 'least_confident':
+            sofmax_outputs_max, _ = torch.max(sofmax_outputs, dim=1)
+            _, max_uncertainty_index = torch.max(1 - sofmax_outputs_max, dim=0)
+
+        elif self.criterion == 'margin_sampling':
+            sort, _ = torch.sort(sofmax_outputs)
+            margin = - sort[:, 0] + sort[:, 1]
+            _, min_margin_index = torch.min(margin, dim=0)
+
+        elif self.criterion == 'entropy_sampling':
+            entropy = Categorical(probs=sofmax_outputs).entropy()
+            _, min_entropy_index = torch.max(entropy, dim=0)
 
         # Append the idx of the n most important images based on their prioritisation score
         # self.labeled_idx.append(...)
