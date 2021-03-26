@@ -79,29 +79,32 @@ class Expert:
         # We turn the indexes list into a tensor
         self.labeled_idx = tensor(self.labeled_idx)
 
-    def add_labels(self, unlabeled_data, sofmax_outputs, n):
+    def add_labels(self, unlabeled_data, softmax_outputs, n):
         """
         Add labels based on prioritisation criterion used
 
         :param unlabeled_data: Dataloader with a single batch with all unlabeled images
-        :param sofmax_outputs: Softmax outputs of our model of the unlabeld data
+        :param softmax_outputs: Softmax outputs of our model of the unlabeld data
         :param n: Number of items to label
         """
         # !! TO DO  !! #
 
         # Evaluate prioritisation score of each image using the softmax ouputs and prioritisation criterion
         if self.criterion == 'least_confident':
-            sofmax_outputs_max, _ = torch.max(sofmax_outputs, dim=1)
-            _, max_uncertainty_index = torch.max(1 - sofmax_outputs_max, dim=0)
+            softmax_outputs_max, _ = torch.max(1-softmax_outputs, dim=1)
+            _, max_uncertainty_indices = torch.sort(-softmax_outputs_max)
+            self.labeled_idx.append(max_uncertainty_indices[0:n])
 
         elif self.criterion == 'margin_sampling':
-            sort, _ = torch.sort(sofmax_outputs)
-            margin = - sort[:, 0] + sort[:, 1]
-            _, min_margin_index = torch.min(margin, dim=0)
+            sort_softmax_outputs, _ = torch.sort(-softmax_outputs)
+            margin = - sort_softmax_outputs[:, 0] + sort_softmax_outputs[:, 1]
+            _, min_margin_indices = torch.sort(margin)
+            self.labeled_idx.append(min_margin_indices[0:n])
 
         elif self.criterion == 'entropy_sampling':
-            entropy = Categorical(probs=sofmax_outputs).entropy()
-            _, min_entropy_index = torch.max(entropy, dim=0)
+            softmax_outputs_entropy = Categorical(probs=softmax_outputs).entropy()
+            _, max_entropy_indices = torch.sort(-softmax_outputs_entropy)
+            self.labeled_idx.append(max_entropy_indices[0:n])
 
         # Append the idx of the n most important images based on their prioritisation score
         # self.labeled_idx.append(...)
