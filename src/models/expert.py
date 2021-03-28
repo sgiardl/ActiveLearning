@@ -14,9 +14,10 @@ from torch.distributions import Categorical
 
 prioritisation_criterion_list = ['least_confident', 'margin_sampling', 'entropy_sampling']
 
+
 class Expert:
 
-    def __init__(self, dataset: Dataset, n: int, prioritisation_criterion: Callable[[tensor], tensor]):
+    def __init__(self, dataset: Dataset, n: int, prioritisation_criterion: str):
 
         """
         Select randomly n items from each class of the training dataset.
@@ -28,7 +29,7 @@ class Expert:
         """
 
         # We initialize the criterion object
-        self.criterion = self.initialize_criterion(prioritisation_criterion)
+        self.initialize_criterion(self, prioritisation_criterion)
 
         self.idx2class = {v: k for k, v in dataset.class_to_idx.items()}
 
@@ -47,15 +48,15 @@ class Expert:
         self.update_expert_sampler()
 
     @staticmethod
-    def initialize_criterion(self, prioritisation_criterion):
+    def initialize_criterion(self, prioritisation_criterion) -> None:
         if prioritisation_criterion not in prioritisation_criterion_list:
             raise Exception(f"The prioritisation_criterion provided must be in {prioritisation_criterion_list}")
         elif prioritisation_criterion == 'least_confident':
-            return self.least_confident_criterion
+            self.criterion = self.least_confident_criterion
         elif prioritisation_criterion == 'margin_sampling':
-            return self.margin_sampling_criterion
+            self.criterion = self.margin_sampling_criterion
         elif prioritisation_criterion == 'entropy_sampling':
-            return self.entropy_sampling_criterion
+            self.criterion = self.entropy_sampling_criterion
 
     @staticmethod
     def least_confident_criterion(softmax_outputs, n):
@@ -88,9 +89,6 @@ class Expert:
         :param dataset: PyTorch dataset
         :return: dict
         """
-
-        # Evaluate prioritisation score of each image using the softmax_outputs
-        # and appropriate prioritisation_criterion method
 
         # We initialize a count of dataset class count
         count_dict = {k: 0 for k, v in dataset.class_to_idx.items()}
@@ -127,6 +125,10 @@ class Expert:
         :param softmax_outputs: Softmax outputs of our model of the unlabeld data
         :param n: Number of items to label
         """
+
+        # Evaluate prioritisation score of each image using the softmax_outputs
+        # and appropriate prioritisation criterion method
+        prioritisation_softmax_indices = self.criterion(softmax_outputs, n)
 
         # Append the idx of the n most important images based on their prioritisation score
         # self.labeled_idx.append(...)
