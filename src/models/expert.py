@@ -30,8 +30,7 @@ class Expert:
         # We retrieve class distribution from the dataset
         class_dist = self.get_class_distribution(dataset)
         for k, v in class_dist.items():
-            if v < n:
-                raise Exception(f"Class {k} has less than {n} items")
+            assert v >= n, f"Class {k} has less than {n} items"
 
         # We "label" n images of each class
         self.labeled_idx = []

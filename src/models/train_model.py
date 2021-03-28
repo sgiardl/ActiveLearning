@@ -43,7 +43,7 @@ def get_transforms() -> Callable:
 
 
 def train_model(epochs: int, data_loader: torch.utils.data.DataLoader, file_name: str,
-                model_name: str, pretrained: bool = False, **kwargs) -> torch.tensor:
+                model_name: str, pretrained: bool = False, **kwargs) -> None:
     """
     Trains the model and saves the trained model.
 
@@ -65,14 +65,13 @@ def train_model(epochs: int, data_loader: torch.utils.data.DataLoader, file_name
     # number of classes
     model = load_zoo_models(model_name, num_classes, pretrained=pretrained)
 
-    # Define loss function and softmax function for active learning criterion
+    # Define loss function
     criterion = torch.nn.CrossEntropyLoss()
-    softmax = torch.nn.Softmax(dim=1)
 
     # Find which parameters to train (those with .requires_grad = True)
     params = [p for p in model.parameters() if p.requires_grad]
 
-    # Define stochastic gradient descent optimizer
+    # Define Adam optimizer
     optimizer = torch.optim.Adam(params, lr=kwargs.get('learning_rate', LEARNING_RATE))
 
     # Define device as the GPU if available, else use the CPU
@@ -107,16 +106,11 @@ def train_model(epochs: int, data_loader: torch.utils.data.DataLoader, file_name
             # Perform a forward pass
             outputs = model.forward(images)
 
-            # Calculate the softmax manually
-            # We can't take the softmax out of the cross entropy calculation
-            # We can't either apply softmax and log separately before using NLL loss
-            softmax_output = softmax(outputs)
-
             # Get the maximum prediction & class associated with
             # the maximum prediction
             # max_pred, max_class = preds.topk(1, dim=1)
 
-            # Calculate the loss, comparing log(preds) with the
+            # Calculate the loss, comparing outputs with the
             # ground truth labels
             loss = criterion(outputs, labels)
 
@@ -147,5 +141,3 @@ def train_model(epochs: int, data_loader: torch.utils.data.DataLoader, file_name
     # If file_name is specified, save the trained model
     if file_name is not None:
         torch.save(model.state_dict(), f'{os.getcwd()}/models/{file_name}')
-
-    return softmax_output
