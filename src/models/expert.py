@@ -25,7 +25,9 @@ class Expert:
         :param prioritisation_criterion: Function that our expert uses to prioritise next images to label
         """
 
-        self.criterion = prioritisation_criterion
+        # We initialize the criterion object
+        self.criterion = self.initialize_criterion(prioritisation_criterion)
+
         self.idx2class = {v: k for k, v in dataset.class_to_idx.items()}
 
         # We retrieve class distribution from the dataset
@@ -41,6 +43,40 @@ class Expert:
 
         # We initialize the sampler object
         self.update_expert_sampler()
+
+    @staticmethod
+    def initialize_criterion(self, prioritisation_criterion):
+        if prioritisation_criterion == 'least_confident':
+            return self.least_confident_criterion
+        elif prioritisation_criterion == 'margin_sampling':
+            return self.margin_sampling_criterion
+        elif prioritisation_criterion == 'entropy_sampling':
+            return self.entropy_sampling_criterion
+
+    # Evaluate prioritisation score of each image using the softmax_outputs
+    # and appropriate prioritisation_criterion method
+    
+    @staticmethod
+    def least_confident_criterion(softmax_outputs, n):
+        softmax_outputs_max, _ = torch.max(1 - softmax_outputs, dim=1)
+        _, max_uncertainty_indices = torch.sort(-softmax_outputs_max)
+        prioritisation_softmax_indices = max_uncertainty_indices[0:n]
+        return prioritisation_softmax_indices
+
+    @staticmethod
+    def margin_sampling_criterion(softmax_outputs, n):
+        sort_softmax_outputs, _ = torch.sort(-softmax_outputs)
+        margin = - sort_softmax_outputs[:, 0] + sort_softmax_outputs[:, 1]
+        _, min_margin_indices = torch.sort(margin)
+        prioritisation_softmax_indices = min_margin_indices[0:n]
+        return prioritisation_softmax_indices
+
+    @staticmethod
+    def entropy_sampling_criterion(softmax_outputs, n):
+        softmax_outputs_entropy = Categorical(probs=softmax_outputs).entropy()
+        _, max_entropy_indices = torch.sort(-softmax_outputs_entropy)
+        prioritisation_softmax_indices = max_entropy_indices[0:n]
+        return prioritisation_softmax_indices
 
     def get_class_distribution(self, dataset: Dataset) -> dict:
 
@@ -87,27 +123,10 @@ class Expert:
         :param softmax_outputs: Softmax outputs of our model of the unlabeld data
         :param n: Number of items to label
         """
-        # !! TO DO  !! #
-
-        # Evaluate prioritisation score of each image using the softmax ouputs and prioritisation criterion
-        if self.criterion == 'least_confident':
-            softmax_outputs_max, _ = torch.max(1-softmax_outputs, dim=1)
-            _, max_uncertainty_indices = torch.sort(-softmax_outputs_max)
-            prioritisation_indices = max_uncertainty_indices[0:n]
-
-        elif self.criterion == 'margin_sampling':
-            sort_softmax_outputs, _ = torch.sort(-softmax_outputs)
-            margin = - sort_softmax_outputs[:, 0] + sort_softmax_outputs[:, 1]
-            _, min_margin_indices = torch.sort(margin)
-            prioritisation_indices = min_margin_indices[0:n]
-
-        elif self.criterion == 'entropy_sampling':
-            softmax_outputs_entropy = Categorical(probs=softmax_outputs).entropy()
-            _, max_entropy_indices = torch.sort(-softmax_outputs_entropy)
-            prioritisation_indices = max_entropy_indices[0:n]
 
         # Append the idx of the n most important images based on their prioritisation score
         # self.labeled_idx.append(...)
+        #prioritisation_indices = indices of unlabeled_data[prioritisation_softmax_indices]
         self.labeled_idx.append(prioritisation_indices)
 
         # Update the labeled history. Append 0 to the classes without new labeled images.
