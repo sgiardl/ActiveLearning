@@ -12,6 +12,8 @@ import matplotlib.pyplot as plt
 import torch
 from torch.distributions import Categorical
 
+prioritisation_criterion_list = ['least_confident', 'margin_sampling', 'entropy_sampling']
+
 class Expert:
 
     def __init__(self, dataset: Dataset, n: int, prioritisation_criterion: Callable[[tensor], tensor]):
@@ -46,16 +48,15 @@ class Expert:
 
     @staticmethod
     def initialize_criterion(self, prioritisation_criterion):
-        if prioritisation_criterion == 'least_confident':
+        if prioritisation_criterion not in prioritisation_criterion_list:
+            raise Exception(f"The prioritisation_criterion provided must be in {prioritisation_criterion_list}")
+        elif prioritisation_criterion == 'least_confident':
             return self.least_confident_criterion
         elif prioritisation_criterion == 'margin_sampling':
             return self.margin_sampling_criterion
         elif prioritisation_criterion == 'entropy_sampling':
             return self.entropy_sampling_criterion
 
-    # Evaluate prioritisation score of each image using the softmax_outputs
-    # and appropriate prioritisation_criterion method
-    
     @staticmethod
     def least_confident_criterion(softmax_outputs, n):
         softmax_outputs_max, _ = torch.max(1 - softmax_outputs, dim=1)
@@ -87,6 +88,9 @@ class Expert:
         :param dataset: PyTorch dataset
         :return: dict
         """
+
+        # Evaluate prioritisation score of each image using the softmax_outputs
+        # and appropriate prioritisation_criterion method
 
         # We initialize a count of dataset class count
         count_dict = {k: 0 for k, v in dataset.class_to_idx.items()}
