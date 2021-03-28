@@ -4,7 +4,6 @@ This file stores all functions related to model training.
 import os
 
 import torch
-import torch.nn.functional as F
 import torch.backends.cudnn as cudnn
 import torchvision.transforms as transforms
 
