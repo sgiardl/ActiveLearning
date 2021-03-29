@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import torch
 from torch.distributions import Categorical
 
-prioritisation_criterion_list = ['least_confident', 'margin_sampling', 'entropy_sampling']
+PRIORITISATION_CRITERION = ['least_confident', 'margin_sampling', 'entropy_sampling']
 
 
 class Expert:
@@ -37,7 +37,7 @@ class Expert:
         class_dist = self.get_class_distribution(dataset)
         for k, v in class_dist.items():
             if v < n:
-                raise Exception(f"Class {k} has less than {n} items")
+                raise Exception("Class {k} has less than {n} items")
 
         # We "label" n images of each class
         self.labeled_idx = []
@@ -49,8 +49,8 @@ class Expert:
 
     @staticmethod
     def initialize_criterion(self, prioritisation_criterion) -> None:
-        if prioritisation_criterion not in prioritisation_criterion_list:
-            raise Exception(f"The prioritisation_criterion provided must be in {prioritisation_criterion_list}")
+        if prioritisation_criterion not in PRIORITISATION_CRITERION:
+            raise Exception("The prioritisation_criterion provided must be in {PRIORITISATION_CRITERION}")
         elif prioritisation_criterion == 'least_confident':
             self.criterion = self.least_confident_criterion
         elif prioritisation_criterion == 'margin_sampling':
@@ -122,17 +122,17 @@ class Expert:
         Add labels based on prioritisation criterion used
 
         :param unlabeled_data: Dataloader with a single batch with all unlabeled images
-        :param softmax_outputs: Softmax outputs of our model of the unlabeld data
+        :param softmax_outputs: Softmax outputs of our model of the unlabeled data
         :param n: Number of items to label
         """
 
         # Evaluate prioritisation score of each image using the softmax_outputs
         # and appropriate prioritisation criterion method
         prioritisation_softmax_indices = self.criterion(softmax_outputs, n)
+        prioritisation_indices = unlabeled_data_idx[prioritisation_softmax_indices]
 
         # Append the idx of the n most important images based on their prioritisation score
         # self.labeled_idx.append(...)
-        #prioritisation_indices = indices of unlabeled_data[prioritisation_softmax_indices]
         self.labeled_idx.append(prioritisation_indices)
 
         # Update the labeled history. Append 0 to the classes without new labeled images.
