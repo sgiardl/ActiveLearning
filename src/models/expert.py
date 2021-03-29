@@ -25,7 +25,7 @@ class Expert:
 
         :param dataset: PyTorch dataset
         :param n: Number of item to label per class at start
-        :param prioritisation_criterion: Function that our expert uses to prioritise next images to label
+        :param prioritisation_criterion: Name of the function that our expert uses to prioritise next images to label
         """
 
         # We initialize the criterion object
@@ -48,7 +48,13 @@ class Expert:
         self.update_expert_sampler()
 
     @staticmethod
-    def initialize_criterion(self, prioritisation_criterion) -> None:
+    def initialize_criterion(self, prioritisation_criterion: str) -> None:
+
+        """
+        This method initializes prioritisation criterion
+
+        :param prioritisation_criterion: Name of the function that our expert uses to prioritise next images to label
+        """
         if prioritisation_criterion not in PRIORITISATION_CRITERION:
             raise Exception("The prioritisation_criterion provided must be in {PRIORITISATION_CRITERION}")
         elif prioritisation_criterion == 'least_confident':
@@ -59,14 +65,30 @@ class Expert:
             self.criterion = self.entropy_sampling_criterion
 
     @staticmethod
-    def least_confident_criterion(softmax_outputs, n):
+    def least_confident_criterion(softmax_outputs: tensor, n: int) -> tensor:
+
+        """
+        This method implements the "Least Confidence" strategy
+
+        :param softmax_outputs: Softmax outputs of our model of the unlabeled data
+        :param n: Number of items to label
+        :return: tensor
+        """
         softmax_outputs_max, _ = torch.max(1 - softmax_outputs, dim=1)
         _, max_uncertainty_indices = torch.sort(-softmax_outputs_max)
         prioritisation_softmax_indices = max_uncertainty_indices[0:n]
         return prioritisation_softmax_indices
 
     @staticmethod
-    def margin_sampling_criterion(softmax_outputs, n):
+    def margin_sampling_criterion(softmax_outputs: tensor, n: int) -> tensor:
+
+        """
+        This method implements the "Margin Sampling" strategy
+
+        :param softmax_outputs: Softmax outputs of our model of the unlabeled data
+        :param n: Number of items to label
+        :return: tensor
+        """
         sort_softmax_outputs, _ = torch.sort(-softmax_outputs)
         margin = - sort_softmax_outputs[:, 0] + sort_softmax_outputs[:, 1]
         _, min_margin_indices = torch.sort(margin)
@@ -74,7 +96,15 @@ class Expert:
         return prioritisation_softmax_indices
 
     @staticmethod
-    def entropy_sampling_criterion(softmax_outputs, n):
+    def entropy_sampling_criterion(softmax_outputs: tensor, n: int) -> tensor:
+
+        """
+        This method implements the "Entropy Sampling" strategy
+
+        :param softmax_outputs: Softmax outputs of our model of the unlabeled data
+        :param n: Number of items to label
+        :return: tensor
+        """
         softmax_outputs_entropy = Categorical(probs=softmax_outputs).entropy()
         _, max_entropy_indices = torch.sort(-softmax_outputs_entropy)
         prioritisation_softmax_indices = max_entropy_indices[0:n]
