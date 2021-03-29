@@ -117,13 +117,14 @@ class Expert:
         # We turn the indexes list into a tensor
         self.labeled_idx = tensor(self.labeled_idx)
 
-    def add_labels(self, unlabeled_data, softmax_outputs, n):
+    def add_labels(self, unlabeled_data, softmax_outputs, n: int, dataset: Dataset):
         """
         Add labels based on prioritisation criterion used
 
         :param unlabeled_data: Dataloader with a single batch with all unlabeled images
         :param softmax_outputs: Softmax outputs of our model of the unlabeled data
         :param n: Number of items to label
+        :param dataset: PyTorch dataset
         """
 
         # Evaluate prioritisation score of each image using the softmax_outputs
@@ -135,11 +136,25 @@ class Expert:
         self.labeled_idx = torch.cat((self.labeled_idx, prioritisation_indices), dim=0)
 
         # Update the labeled history. Append 0 to the classes without new labeled images.
+        self.update_labels_history(n, dataset, prioritisation_indices)
 
         # Update the expert sampler
         self.update_expert_sampler()
 
         raise NotImplementedError
+
+    def update_labels_history(self, n: int, dataset: Dataset, prioritisation_indices) -> None:
+        """
+        Update labeled history
+        :param n: Number of items to label
+        :param dataset: PyTorch dataset
+        :param prioritisation_indices: Dataloader with a single batch with all unlabeled images
+        """
+
+        for i in range(n):
+            prioritisation_idx = prioritisation_indices[i]
+            _, prioritisation_class = dataset.__getitem__(self.labeled_idx[prioritisation_idx])
+            self.labeled_history[prioritisation_class][0] += 1
 
     def show_labels_history(self, show: bool = True, save_path: Union[str, None] = None, format: str = 'pdf') -> None:
         """
