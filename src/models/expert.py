@@ -135,7 +135,7 @@ class Expert:
         # Add the idx of the n most important images based on their prioritisation score
         self.labeled_idx = torch.cat((self.labeled_idx, prioritisation_indices), dim=0)
 
-        # Update the labeled history. Append 0 to the classes without new labeled images.
+        # Update the labeled history.
         self.update_labels_history(n, dataset, prioritisation_indices)
 
         # Update the expert sampler
