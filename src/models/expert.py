@@ -131,9 +131,8 @@ class Expert:
         prioritisation_softmax_indices = self.criterion(softmax_outputs, n)
         prioritisation_indices = unlabeled_data_idx[prioritisation_softmax_indices]
 
-        # Append the idx of the n most important images based on their prioritisation score
-        # self.labeled_idx.append(...)
-        self.labeled_idx.append(prioritisation_indices)
+        # Add the idx of the n most important images based on their prioritisation score
+        self.labeled_idx = torch.cat((self.labeled_idx, prioritisation_indices), dim=0)
 
         # Update the labeled history. Append 0 to the classes without new labeled images.
 
