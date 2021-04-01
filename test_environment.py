@@ -3,7 +3,7 @@ import os
 from src.data.DatasetManager import DatasetManager
 from src.data.constants import *
 from src.models.constants import *
-from src.models.TrainValidTestManager import train_model, get_transforms
+from src.models.TrainValidTestManager import TrainValidTestManager
 
 
 
@@ -31,8 +31,7 @@ def main():
 if __name__ == '__main__':
     main()
 
-    dataset_manager = DatasetManager(CIFAR10, 0.1)
-
-
-    train_model(epochs=100, data_loader=data_loader_train, file_name='model',
-                model_name=SQUEEZE_NET_1_1, pretrained=True, learning_rate=0.0001)
+    dataset_manager = DatasetManager(CIFAR10, valid_size=0.1, batch_size=10, num_workers=4)
+    train_valid_test_manager = TrainValidTestManager(dataset_manager, file_name='model',
+                                                     model_name=SQUEEZE_NET_1_1, pretrained=True)
+    train_valid_test_manager.train_model(epochs=100, learning_rate=0.0001)

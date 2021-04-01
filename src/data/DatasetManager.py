@@ -13,7 +13,10 @@ from src.models.expert import Expert
 from torch.utils.data import DataLoader
 
 class DatasetManager():
-    def __init__(self, dataset_name: str, valid_size: float, batch_size: int, num_workers: int = 1):
+    def __init__(self, dataset_name: str,
+                 valid_size: float,
+                 batch_size: int,
+                 num_workers: int = 1):
         dataset_train = self.get_dataset(name=dataset_name, root=f"{os.getcwd()}/data/raw",
                                     transforms=self.get_transforms(), train=True)
 
@@ -27,7 +30,7 @@ class DatasetManager():
         self.data_loader_train = DataLoader(self.dataset_train, batch_size=batch_size, shuffle=False,
                                             num_workers=num_workers, sampler=self.expert.sampler)
 
-    def get_dataset(name: str, root: str, transforms: Union[Sequence[Callable], Callable] = None,
+    def get_dataset(self, name: str, root: str, transforms: Union[Sequence[Callable], Callable] = None,
                     download: bool = True, train: bool = True) -> datasets:
         """
         Downloads dataset from torchvision
@@ -53,7 +56,7 @@ class DatasetManager():
                                    transform=transforms, download=download, train=train)
 
 
-    def split_dataset(dataset: datasets, split_size: float) -> (Subset, Subset):
+    def split_dataset(self, dataset: datasets, split_size: float) -> (Subset, Subset):
         '''
         Splits a dataset into two subsets.
 

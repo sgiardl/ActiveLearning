@@ -12,7 +12,6 @@ import matplotlib.pyplot as plt
 
 
 class Expert:
-
     def __init__(self, dataset: Dataset, n: int, prioritisation_criterion: Callable[[tensor], tensor]):
 
         """

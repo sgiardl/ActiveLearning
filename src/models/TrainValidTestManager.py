@@ -6,7 +6,7 @@ import os
 import torch
 import torch.backends.cudnn as cudnn
 from torch.utils.data import Subset
-
+from src.data.DatasetManager import DatasetManager
 import matplotlib.pyplot as plt
 
 from .constants import *
@@ -15,14 +15,16 @@ from tqdm import tqdm
 
 
 class TrainValidTestManager():
-    def __init__(self, valid_size: float):
+    def __init__(self, dataset_manager: DatasetManager,
+                 file_name: str,
+                 model_name: str,
+                 pretrained: bool = False):
+        self.data_loader_train = dataset_manager.data_loader_train
+        self.file_name = file_name
+        self.model_name = model_name
+        self.pretrained = pretrained
 
-
-
-
-
-    def train_model(epochs: int, data_loader: torch.utils.data.DataLoader, file_name: str,
-                    model_name: str, pretrained: bool = False, **kwargs) -> None:
+    def train_model(self, epochs: int, **kwargs) -> None:
         """
         Trains the model and saves the trained model.
 
@@ -38,14 +40,14 @@ class TrainValidTestManager():
         cudnn.benchmark = True
 
         # Number of classes in the data_loader dataset
-        if type(data_loader.dataset) == Subset:
-            num_classes = len(data_loader.dataset.dataset.class_to_idx)
+        if type(self.data_loader_train.dataset) == Subset:
+            num_classes = len(self.data_loader_train.dataset.dataset.class_to_idx)
         else:
-            num_classes = len(data_loader.dataset.class_to_idx)
+            num_classes = len(self.data_loader_train.dataset.class_to_idx)
 
         # Get model and set last fully-connected layer with the right
         # number of classes
-        model = load_zoo_models(model_name, num_classes, pretrained=pretrained)
+        model = load_zoo_models(self.model_name, num_classes, pretrained=self.pretrained)
 
         # Define loss function
         criterion = torch.nn.CrossEntropyLoss()
@@ -63,7 +65,7 @@ class TrainValidTestManager():
         model.to(device)
 
         # Get length of data_loader once
-        len_data_loader = len(data_loader)
+        len_data_loader = len(self.data_loader_train)
 
         # Initialize loss = 0 and loss_list as a blank list
         loss_list = []
@@ -78,7 +80,7 @@ class TrainValidTestManager():
         # Main training loop, loop through each epoch
         for epoch in range(epochs):
             # Loop through each mini-batch from the data loader
-            for i, (images, labels) in enumerate(data_loader):
+            for i, (images, labels) in enumerate(self.data_loader_train):
                 # Send images and labels to the device
                 images, labels = images.to(device), labels.to(device)
 
@@ -121,5 +123,5 @@ class TrainValidTestManager():
         plt.show()
 
         # If file_name is specified, save the trained model
-        if file_name is not None:
-            torch.save(model.state_dict(), f'{os.getcwd()}/models/{file_name}')
+        if self.file_name is not None:
+            torch.save(model.state_dict(), f'{os.getcwd()}/models/{self.file_name}')
