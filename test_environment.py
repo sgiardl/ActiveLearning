@@ -1,12 +1,10 @@
 import sys
 import os
-from src.data.datasets import get_dataset, split_dataset
+from src.data.DatasetManager import DatasetManager
 from src.data.constants import *
 from src.models.constants import *
-from src.models.train_model import train_model, get_transforms
-from src.models.expert import Expert
+from src.models.TrainValidTestManager import train_model, get_transforms
 
-from torch.utils.data import DataLoader
 
 
 REQUIRED_PYTHON = "python3"
@@ -33,16 +31,8 @@ def main():
 if __name__ == '__main__':
     main()
 
-    dataset_name = CIFAR10
+    dataset_manager = DatasetManager(CIFAR10, 0.1)
 
-    dataset_train = get_dataset(name=dataset_name, root=f"{os.getcwd()}/data/raw",
-                                transforms=get_transforms(), train=True)
-    dataset_test = get_dataset(name=dataset_name, root=f"{os.getcwd()}/data/raw",
-                               transforms=get_transforms(), train=False)
 
-    dataset_test, dataset_valid = split_dataset(dataset_test, 0.1)
-
-    expert = Expert(dataset_train, 2, None)
-    data_loader_train = DataLoader(dataset_train, batch_size=10, shuffle=False, num_workers=1, sampler=expert.sampler)
     train_model(epochs=100, data_loader=data_loader_train, file_name='model',
                 model_name=SQUEEZE_NET_1_1, pretrained=True, learning_rate=0.0001)
