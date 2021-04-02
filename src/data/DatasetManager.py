@@ -16,6 +16,7 @@ class DatasetManager():
     def __init__(self, dataset_name: str,
                  valid_size: float,
                  batch_size: int,
+                 shuffle: bool = False,
                  num_workers: int = 1):
         dataset_train = self.get_dataset(name=dataset_name, root=f"{os.getcwd()}/data/raw",
                                     transforms=self.get_transforms(), train=True)
@@ -27,8 +28,11 @@ class DatasetManager():
 
         self.expert = Expert(self.dataset_train, 2, None)
 
-        self.data_loader_train = DataLoader(self.dataset_train, batch_size=batch_size, shuffle=False,
+        self.data_loader_train = DataLoader(self.dataset_train, batch_size=batch_size, shuffle=shuffle,
                                             num_workers=num_workers, sampler=self.expert.sampler)
+
+        self.data_loader_valid = DataLoader(self.dataset_valid, batch_size=batch_size, shuffle=shuffle,
+                                            num_workers=num_workers)
 
     def get_dataset(self, name: str, root: str, transforms: Union[Sequence[Callable], Callable] = None,
                     download: bool = True, train: bool = True) -> datasets:
