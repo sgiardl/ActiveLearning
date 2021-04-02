@@ -9,21 +9,26 @@ from typing import Callable, Union
 from torch import tensor, nonzero
 from torch.utils.data import SubsetRandomSampler, Dataset, Subset
 import matplotlib.pyplot as plt
+import torch
+from torch.distributions import Categorical
+
+PRIORITISATION_CRITERION = ['least_confident', 'margin_sampling', 'entropy_sampling']
 
 
 class Expert:
-    def __init__(self, dataset: Dataset, n: int, prioritisation_criterion: Callable[[tensor], tensor]):
-
+    def __init__(self, dataset: Dataset, n: int, prioritisation_criterion: str):
         """
         Select randomly n items from each class of the training dataset.
         These will be the first labeled items from our expert.
 
         :param dataset: PyTorch dataset
         :param n: Number of item to label per class at start
-        :param prioritisation_criterion: Function that our expert uses to prioritise next images to label
+        :param prioritisation_criterion: Name of the function that our expert uses to prioritise next images to label
         """
 
-        self.criterion = prioritisation_criterion
+        # We initialize the criterion object
+        self.initialize_criterion(self, prioritisation_criterion)
+
         if type(dataset) == Subset:
             self.idx2class = {v: k for k, v in dataset.dataset.class_to_idx.items()}
         else:
@@ -41,6 +46,69 @@ class Expert:
 
         # We initialize the sampler object
         self.update_expert_sampler()
+
+    @staticmethod
+    def initialize_criterion(self, prioritisation_criterion: str) -> None:
+
+        """
+        This method initializes prioritisation criterion
+
+        :param prioritisation_criterion: Name of the function that our expert uses to prioritise next images to label
+        """
+        if prioritisation_criterion not in PRIORITISATION_CRITERION:
+            raise Exception("The prioritisation_criterion provided must be in {PRIORITISATION_CRITERION}")
+        elif prioritisation_criterion == 'least_confident':
+            self.criterion = self.least_confident_criterion
+        elif prioritisation_criterion == 'margin_sampling':
+            self.criterion = self.margin_sampling_criterion
+        elif prioritisation_criterion == 'entropy_sampling':
+            self.criterion = self.entropy_sampling_criterion
+
+    @staticmethod
+    def least_confident_criterion(softmax_outputs: tensor, n: int) -> tensor:
+
+        """
+        This method implements the "Least Confidence" strategy
+
+        :param softmax_outputs: Softmax outputs of our model of the unlabeled data
+        :param n: Number of items to label
+        :return: tensor
+        """
+        softmax_outputs_max, _ = torch.max(1 - softmax_outputs, dim=1)
+        _, max_uncertainty_indices = torch.sort(-softmax_outputs_max)
+        prioritisation_softmax_indices = max_uncertainty_indices[0:n]
+        return prioritisation_softmax_indices
+
+    @staticmethod
+    def margin_sampling_criterion(softmax_outputs: tensor, n: int) -> tensor:
+
+        """
+        This method implements the "Margin Sampling" strategy
+
+        :param softmax_outputs: Softmax outputs of our model of the unlabeled data
+        :param n: Number of items to label
+        :return: tensor
+        """
+        sort_softmax_outputs, _ = torch.sort(-softmax_outputs)
+        margin = - sort_softmax_outputs[:, 0] + sort_softmax_outputs[:, 1]
+        _, min_margin_indices = torch.sort(margin)
+        prioritisation_softmax_indices = min_margin_indices[0:n]
+        return prioritisation_softmax_indices
+
+    @staticmethod
+    def entropy_sampling_criterion(softmax_outputs: tensor, n: int) -> tensor:
+
+        """
+        This method implements the "Entropy Sampling" strategy
+
+        :param softmax_outputs: Softmax outputs of our model of the unlabeled data
+        :param n: Number of items to label
+        :return: tensor
+        """
+        softmax_outputs_entropy = Categorical(probs=softmax_outputs).entropy()
+        _, max_entropy_indices = torch.sort(-softmax_outputs_entropy)
+        prioritisation_softmax_indices = max_entropy_indices[0:n]
+        return prioritisation_softmax_indices
 
     def get_class_distribution(self, dataset: Dataset) -> dict:
 
@@ -85,35 +153,53 @@ class Expert:
         # We turn the indexes list into a tensor
         self.labeled_idx = tensor(self.labeled_idx)
 
-    def add_labels(self, unlabeled_data, sofmax_outputs, n):
+    def add_labels(self, unlabeled_data_idx, softmax_outputs, n: int, dataset: Dataset):
         """
         Add labels based on prioritisation criterion used
 
-        :param unlabeled_data: Dataloader with a single batch with all unlabeled images
-        :param sofmax_outputs: Softmax outputs of our model of the unlabeld data
+        :param unlabeled_data_idx: Dataloader with a single batch with all unlabeled images
+        :param softmax_outputs: Softmax outputs of our model of the unlabeled data
         :param n: Number of items to label
+        :param dataset: PyTorch dataset
         """
-        # !! TO DO  !! #
 
-        # Evaluate prioritisation score of each image using the softmax ouputs and prioritisation criterion
+        # Evaluate prioritisation score of each image using the softmax_outputs
+        # and appropriate prioritisation criterion method
+        prioritisation_softmax_indices = self.criterion(softmax_outputs, n)
+        prioritisation_indices = unlabeled_data_idx[prioritisation_softmax_indices]
 
-        # Append the idx of the n most important images based on their prioritisation score
-        # self.labeled_idx.append(...)
+        # Add the idx of the n most important images based on their prioritisation score
+        self.labeled_idx = torch.cat((self.labeled_idx, prioritisation_indices), dim=0)
 
-        # Update the labeled history. Append 0 to the classes without new labeled images.
+        # Update the labeled history.
+        self.update_labels_history(n, dataset, prioritisation_indices)
 
         # Update the expert sampler
         self.update_expert_sampler()
 
         raise NotImplementedError
 
-    def show_labels_history(self, show: bool = True, save_path: Union[str, None] = None, format: str = 'pdf') -> None:
+    def update_labels_history(self, n: int, dataset: Dataset, prioritisation_indices) -> None:
+        """
+        Update labeled history
+        :param n: Number of items to label
+        :param dataset: PyTorch dataset
+        :param prioritisation_indices: Dataloader with a single batch with all unlabeled images
+        """
+
+        for i in range(n):
+            prioritisation_idx = prioritisation_indices[i]
+            _, prioritisation_class = dataset.__getitem__(self.labeled_idx[prioritisation_idx])
+            self.labeled_history[prioritisation_class][0] += 1
+
+    def show_labels_history(self, show: bool = True, save_path: Union[str, None] = None,
+                            fig_format: str = 'pdf') -> None:
         """
         Plot the growth of labeled items per class throughout the active learning iteration
 
         :param show: Boolean indicating we want to show the figure
         :param save_path: Path to save the image. The paths must include the file name. (None == unsaved)
-        :param format: Format used to save the figure
+        :param fig_format: Format used to save the figure
         """
 
         # We save the number of active learning iterations done
@@ -135,11 +221,10 @@ class Expert:
 
         # We save it
         if save_path is not None:
-            plt.savefig(f"{save_path}.{format}")
+            plt.savefig(f"{save_path}.{fig_format}")
 
     def update_expert_sampler(self) -> None:
         """
         Update the PyTorch sampler object to give to the dataloader for the training
         """
         self.sampler = SubsetRandomSampler(self.labeled_idx)
-

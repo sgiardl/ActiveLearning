@@ -35,7 +35,7 @@ class DatasetManager:
 
         self.dataset_train, self.dataset_valid = self.split_dataset(dataset_train, valid_size)
 
-        self.expert = Expert(self.dataset_train, 2, None)
+        self.expert = Expert(self.dataset_train, 2, 'least_confident')
 
         self.data_loader_train = DataLoader(self.dataset_train, batch_size=batch_size, shuffle=shuffle,
                                             num_workers=num_workers, sampler=self.expert.sampler)
