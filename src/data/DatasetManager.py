@@ -14,8 +14,7 @@ class DatasetManager:
     def __init__(self, dataset_name: str,
                  valid_size: float) -> None:
         """
-        Dataset Manager class, handles the creation of the training, validation and testing datasets and
-        data loaders.
+        Dataset Manager class, handles the creation of the training, validation and testing datasets.
 
         :param dataset_name: string, name of the dataset to load
         :param valid_size: float, size of validation subset as a fraction of the training set

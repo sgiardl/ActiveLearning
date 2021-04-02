@@ -156,7 +156,7 @@ class Expert:
         # We turn the indexes list into a tensor
         self.labeled_idx = tensor(self.labeled_idx)
 
-    def add_labels(self, unlabeled_data_idx, softmax_outputs, n: int, dataset: Dataset):
+    def add_labels(self, unlabeled_data_idx, softmax_outputs, n: int, dataset: Dataset) -> None:
         """
         Add labels based on prioritisation criterion used
 
@@ -165,7 +165,6 @@ class Expert:
         :param n: Number of items to label
         :param dataset: PyTorch dataset
         """
-
         # Evaluate prioritisation score of each image using the softmax_outputs
         # and appropriate prioritisation criterion method
         prioritisation_softmax_indices = self.criterion(softmax_outputs, n)

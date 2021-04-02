@@ -9,11 +9,13 @@ class DataLoaderManager:
                  query_strategy: str,
                  batch_size: int,
                  shuffle: bool = False,
-                 num_workers: int = 1):
+                 num_workers: int = 1) -> None:
         """
+        Data Loader Manager class, handles the creation of the training, validation and testing data loaders.
 
-        :param dataset_manager:
-        :param query_strategy:
+        :param dataset_manager: DatasetManager, dataset manager containing the
+                                training, validation and testing datasets
+        :param query_strategy: string, query strategy, either
         :param batch_size: int, batch size for forward pass
         :param shuffle: bool, to shuffle the data loaders
         :param num_workers: int, number of multiprocessing workers,
@@ -39,7 +41,7 @@ class DataLoaderManager:
         self.data_loader_test = DataLoader(self.dataset_test, batch_size=batch_size, shuffle=shuffle,
                                            num_workers=num_workers)
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args, **kwargs) -> None:
         self.expert = Expert(self.dataset_train, 2, kwargs.get('query_strategy'))
 
         self.data_loader_train = DataLoader(self.dataset_train, batch_size=self.batch_size,
