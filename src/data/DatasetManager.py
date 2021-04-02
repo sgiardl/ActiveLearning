@@ -4,28 +4,21 @@ import torchvision.datasets as datasets
 from torch.utils.data import Subset
 from sklearn.model_selection import StratifiedShuffleSplit
 import torchvision.transforms as transforms
-from src.models.expert import Expert
-from torch.utils.data import DataLoader
+
 from src.data.constants import *
+
 DATASETS = [CIFAR10, EMNIST]
 
 
 class DatasetManager:
     def __init__(self, dataset_name: str,
-                 valid_size: float,
-                 batch_size: int,
-                 shuffle: bool = False,
-                 num_workers: int = 1) -> None:
+                 valid_size: float) -> None:
         """
         Dataset Manager class, handles the creation of the training, validation and testing datasets and
         data loaders.
 
         :param dataset_name: string, name of the dataset to load
         :param valid_size: float, size of validation subset as a fraction of the training set
-        :param batch_size: int, batch size for forward pass
-        :param shuffle: bool, to shuffle the data loaders
-        :param num_workers: int, number of multiprocessing workers,
-                            should be smaller or equal to the number of cpu threads
         """
         dataset_train = self.get_dataset(name=dataset_name, root=f"{os.getcwd()}/data/raw",
                                          composed_transforms=self.get_transforms(), train=True)
@@ -34,17 +27,6 @@ class DatasetManager:
                                              composed_transforms=self.get_transforms(), train=False)
 
         self.dataset_train, self.dataset_valid = self.split_dataset(dataset_train, valid_size)
-
-        self.expert = Expert(self.dataset_train, 2, 'least_confident')
-
-        self.data_loader_train = DataLoader(self.dataset_train, batch_size=batch_size, shuffle=shuffle,
-                                            num_workers=num_workers, sampler=self.expert.sampler)
-
-        self.data_loader_valid = DataLoader(self.dataset_valid, batch_size=batch_size, shuffle=shuffle,
-                                            num_workers=num_workers)
-
-        self.data_loader_test = DataLoader(self.dataset_test, batch_size=batch_size, shuffle=shuffle,
-                                           num_workers=num_workers)
 
     @staticmethod
     def get_dataset(name: str, root: str, composed_transforms: transforms.Compose = None,
