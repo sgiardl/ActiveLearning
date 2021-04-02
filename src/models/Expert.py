@@ -16,18 +16,18 @@ PRIORITISATION_CRITERION = ['least_confident', 'margin_sampling', 'entropy_sampl
 
 
 class Expert:
-    def __init__(self, dataset: Dataset, n: int, prioritisation_criterion: str):
+    def __init__(self, dataset: Dataset, n: int, query_strategy: str):
         """
         Select randomly n items from each class of the training dataset.
         These will be the first labeled items from our expert.
 
         :param dataset: PyTorch dataset
         :param n: Number of item to label per class at start
-        :param prioritisation_criterion: Name of the function that our expert uses to prioritise next images to label
+        :param query_strategy: Name of the function that our expert uses to prioritise next images to label
         """
 
         # We initialize the criterion object
-        self.initialize_criterion(self, prioritisation_criterion)
+        self.initialize_query_strategy(self, query_strategy)
 
         if type(dataset) == Subset:
             self.idx2class = {v: k for k, v in dataset.dataset.class_to_idx.items()}
@@ -48,7 +48,7 @@ class Expert:
         self.update_expert_sampler()
 
     @staticmethod
-    def initialize_criterion(self, prioritisation_criterion: str) -> None:
+    def initialize_query_strategy(self, prioritisation_criterion: str) -> None:
 
         """
         This method initializes prioritisation criterion
@@ -63,6 +63,9 @@ class Expert:
             self.criterion = self.margin_sampling_criterion
         elif prioritisation_criterion == 'entropy_sampling':
             self.criterion = self.entropy_sampling_criterion
+        # else:
+        #     self.criterion = random
+        # should be random by default
 
     @staticmethod
     def least_confident_criterion(softmax_outputs: tensor, n: int) -> tensor:
@@ -153,7 +156,7 @@ class Expert:
         # We turn the indexes list into a tensor
         self.labeled_idx = tensor(self.labeled_idx)
 
-    def add_labels(self, unlabeled_data_idx, softmax_outputs, n: int, dataset: Dataset):
+    def add_labels(self, unlabeled_data_idx, softmax_outputs, n: int, dataset: Dataset) -> None:
         """
         Add labels based on prioritisation criterion used
 
@@ -162,7 +165,6 @@ class Expert:
         :param n: Number of items to label
         :param dataset: PyTorch dataset
         """
-
         # Evaluate prioritisation score of each image using the softmax_outputs
         # and appropriate prioritisation criterion method
         prioritisation_softmax_indices = self.criterion(softmax_outputs, n)
@@ -176,8 +178,6 @@ class Expert:
 
         # Update the expert sampler
         self.update_expert_sampler()
-
-        raise NotImplementedError
 
     def update_labels_history(self, n: int, dataset: Dataset, prioritisation_indices) -> None:
         """

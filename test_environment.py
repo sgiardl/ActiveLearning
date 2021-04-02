@@ -1,5 +1,6 @@
 import sys
 from src.data.DatasetManager import DatasetManager
+from src.data.DataLoaderManager import DataLoaderManager
 from src.data.constants import *
 from src.models.constants import *
 from src.models.TrainValidTestManager import TrainValidTestManager
@@ -28,10 +29,21 @@ def main():
 if __name__ == '__main__':
     main()
 
-    dataset_manager = DatasetManager(CIFAR10, valid_size=0.1, batch_size=100, shuffle=False, num_workers=8)
-    train_valid_test_manager = TrainValidTestManager(dataset_manager, file_name='model',
-                                                     model_name=SQUEEZE_NET_1_1, learning_rate=0.0001,
-                                                     pretrained=True)
-    train_valid_test_manager.train_model(epochs=20)
-    train_valid_test_manager.test_model()
-    dataset_manager.expert.show_labels_history(format='.png')
+    dataset_manager = DatasetManager(CIFAR10, valid_size=0.1)
+    data_loader_manager = DataLoaderManager(dataset_manager, query_strategy='least_confident',
+                                            batch_size=100, shuffle=False, num_workers=8)
+    query_strategies = ['least_confident', 'margin_sampling']
+
+    for i in range(len(query_strategies)):
+        data_loader_manager(query_strategy=query_strategies[i])
+        train_valid_test_manager = TrainValidTestManager(data_loader_manager, file_name='model',
+                                                         model_name=SQUEEZE_NET_1_1, learning_rate=0.0001,
+                                                         pretrained=True)
+        train_valid_test_manager.train_model(epochs=20)
+        train_valid_test_manager.test_model()
+
+        # show chart
+
+        data_loader_manager.expert.show_labels_history()
+
+    # show charts

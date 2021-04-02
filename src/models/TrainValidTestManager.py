@@ -5,14 +5,14 @@ import os
 import numpy as np
 import torch
 from torch.utils.data import Subset
-from src.data.DatasetManager import DatasetManager
+from src.data.DataLoaderManager import DataLoaderManager
 import matplotlib.pyplot as plt
 from .model import load_zoo_models
 from tqdm import tqdm
 
 
 class TrainValidTestManager:
-    def __init__(self, dataset_manager: DatasetManager,
+    def __init__(self, data_loader_manager: DataLoaderManager,
                  file_name: str,
                  model_name: str,
                  learning_rate: float,
@@ -20,7 +20,7 @@ class TrainValidTestManager:
         """
         Training, validation and testing manager.
 
-        :param dataset_manager: DatasetManager, class with each dataset and dataloader
+        :param data_loader_manager: DatasetManager, class with each dataset and dataloader
         :param file_name: str, file name with which to save the trained model
         :param model_name: str, name of the model (RESNET34 or SQUEEZE_NET_1_1)
         :param learning_rate: float, learning rate for the Adam optimizer
@@ -31,9 +31,9 @@ class TrainValidTestManager:
         torch.backends.cudnn.benchmark = True
 
         # Extract the training, validation and testing data loaders
-        self.data_loader_train = dataset_manager.data_loader_train
-        self.data_loader_valid = dataset_manager.data_loader_valid
-        self.data_loader_test = dataset_manager.data_loader_test
+        self.data_loader_train = data_loader_manager.data_loader_train
+        self.data_loader_valid = data_loader_manager.data_loader_valid
+        self.data_loader_test = data_loader_manager.data_loader_test
 
         # Save the file name
         self.file_name = file_name
