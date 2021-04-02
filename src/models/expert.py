@@ -7,12 +7,11 @@ The indices are then fed to a Pytorch SubsetRandomSampler used by the training D
 from numpy.random import choice
 from typing import Callable, Union
 from torch import tensor, nonzero
-from torch.utils.data import SubsetRandomSampler, Dataset
+from torch.utils.data import SubsetRandomSampler, Dataset, Subset
 import matplotlib.pyplot as plt
 
 
 class Expert:
-
     def __init__(self, dataset: Dataset, n: int, prioritisation_criterion: Callable[[tensor], tensor]):
 
         """
@@ -25,7 +24,10 @@ class Expert:
         """
 
         self.criterion = prioritisation_criterion
-        self.idx2class = {v: k for k, v in dataset.class_to_idx.items()}
+        if type(dataset) == Subset:
+            self.idx2class = {v: k for k, v in dataset.dataset.class_to_idx.items()}
+        else:
+            self.idx2class = {v: k for k, v in dataset.class_to_idx.items()}
 
         # We retrieve class distribution from the dataset
         class_dist = self.get_class_distribution(dataset)
@@ -51,7 +53,10 @@ class Expert:
         """
 
         # We initialize a count of dataset class count
-        count_dict = {k: 0 for k, v in dataset.class_to_idx.items()}
+        if type(dataset) == Subset:
+            count_dict = {k: 0 for k, v in dataset.dataset.class_to_idx.items()}
+        else:
+            count_dict = {k: 0 for k, v in dataset.class_to_idx.items()}
 
         # We count number of items in each class
         for item in dataset:
@@ -67,7 +72,10 @@ class Expert:
         :param n: Number of items to label per class at start
         """
         # We save targets in a tensor
-        targets = tensor(dataset.targets)
+        if type(dataset) == Subset:
+            targets = tensor([dataset.dataset.targets[i] for i in dataset.indices])
+        else:
+            targets = tensor(dataset.targets)
 
         # For each class we select n items randomly without replacement
         for k, _ in self.idx2class.items():

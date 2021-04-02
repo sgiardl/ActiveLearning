@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
 
-from datasets import get_dataset
+from DatasetManager import get_dataset
 from constants import *
 
 @click.command()
