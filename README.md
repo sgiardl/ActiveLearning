@@ -1,7 +1,13 @@
-Projet de session
+Active Learning for Image Classification
 ==============================
 
-Projet de session dans le cadre du cours IFT780 à la session d'Hiver 2021
+This repository contains the term project for neural networks class (IFT780) at the University of Sherbrooke (Winter 2021).
+
+## Installation
+Install dependencies on a python environment
+```
+$ pip3 install -r requirements.txt
+```
 
 Project Organization
 ------------
