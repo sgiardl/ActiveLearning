@@ -30,9 +30,9 @@ class Expert:
         self.initialize_query_strategy(self, query_strategy)
 
         if type(dataset) == Subset:
-            self.idx2class = {v: k for k, v in dataset.dataset.class_to_idx.items()}
+            self.idx_to_class = {v: k for k, v in dataset.dataset.class_to_idx.items()}
         else:
-            self.idx2class = {v: k for k, v in dataset.class_to_idx.items()}
+            self.idx_to_class = {v: k for k, v in dataset.class_to_idx.items()}
 
         # We retrieve class distribution from the dataset
         class_dist = self.get_class_distribution(dataset)
@@ -42,7 +42,7 @@ class Expert:
         # We "label" n images of each class
         self.labeled_idx = []
         self.initialize_labels(dataset, n)
-        self.labeled_history = {k: [n] for k in self.idx2class.keys()}
+        self.labeled_history = {k: [n] for k in self.idx_to_class.keys()}
 
         # We initialize the sampler object
         self.update_expert_sampler()
@@ -131,7 +131,7 @@ class Expert:
 
         # We count number of items in each class
         for item in dataset:
-            count_dict[self.idx2class[item[1]]] += 1
+            count_dict[self.idx_to_class[item[1]]] += 1
 
         return count_dict
 
@@ -149,7 +149,7 @@ class Expert:
             targets = tensor(dataset.targets)
 
         # For each class we select n items randomly without replacement
-        for k, _ in self.idx2class.items():
+        for k, _ in self.idx_to_class.items():
             class_idx = (nonzero(targets == k)).squeeze()
             self.labeled_idx.extend(choice(class_idx, n, replace=False))
 
@@ -205,7 +205,7 @@ class Expert:
         # We save the number of active learning iterations done
         x = range(len(self.labeled_history[0]))
         for k, history in self.labeled_history.items():
-            plt.plot(x, history, label=self.idx2class[k])
+            plt.plot(x, history, label=self.idx_to_class[k])
 
         # We set x-axis steps
         plt.xticks(x)
