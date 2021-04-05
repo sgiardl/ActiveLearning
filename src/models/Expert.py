@@ -151,7 +151,7 @@ class Expert:
         # We turn the indexes list into a tensor
         self.labeled_idx = tensor(self.labeled_idx)
 
-    def add_labels(self, unlabeled_data_idx, softmax_outputs, n: int, dataset: Dataset) -> None:
+    def add_labels(self, unlabeled_data_idx, softmax_outputs: tensor, n: int, dataset: Dataset) -> None:
         """
         Add labels based on prioritisation criterion used
 
@@ -174,7 +174,7 @@ class Expert:
         # Update the expert sampler
         self.update_expert_sampler()
 
-    def update_labels_history(self, n: int, dataset: Dataset, prioritisation_indices) -> None:
+    def update_labels_history(self, n: int, dataset: Dataset, prioritisation_indices: tensor) -> None:
         """
         Update labeled history
         :param n: Number of items to label
