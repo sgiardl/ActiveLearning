@@ -12,11 +12,11 @@ import matplotlib.pyplot as plt
 import torch
 from torch.distributions import Categorical
 
-PRIORITISATION_CRITERION = ['least_confident', 'margin_sampling', 'entropy_sampling']
+PRIORITISATION_CRITERION = ['random_selection', 'least_confident', 'margin_sampling', 'entropy_sampling']
 
 
 class Expert:
-    def __init__(self, dataset: Dataset, n: int, query_strategy: str):
+    def __init__(self, dataset: Dataset, n: int, query_strategy: str = 'random_selection'):
         """
         Select randomly n items from each class of the training dataset.
         These will be the first labeled items from our expert.
@@ -56,15 +56,26 @@ class Expert:
         """
         if prioritisation_criterion not in PRIORITISATION_CRITERION:
             raise Exception("The prioritisation_criterion provided must be in {PRIORITISATION_CRITERION}")
+        elif prioritisation_criterion == 'random_selection':
+            self.criterion = self.random_selection_criterion
         elif prioritisation_criterion == 'least_confident':
             self.criterion = self.least_confident_criterion
         elif prioritisation_criterion == 'margin_sampling':
             self.criterion = self.margin_sampling_criterion
         elif prioritisation_criterion == 'entropy_sampling':
             self.criterion = self.entropy_sampling_criterion
-        # else:
-        #     self.criterion = random
-        # should be random by default
+
+    @staticmethod
+    def random_selection_criterion(unlabeled_data_idx: tensor, n: int) -> tensor:
+        """
+        This method randomly selects n indices
+
+        :param unlabeled_data_idx: Dataloader with a single batch with all unlabeled images
+        :param n: Number of items to label
+        :return: tensor
+        """
+        prioritisation_random_indices = torch.randperm(len(unlabeled_data_idx))[0:n]
+        return prioritisation_random_indices
 
     @staticmethod
     def least_confident_criterion(softmax_outputs: tensor, n: int) -> tensor:
