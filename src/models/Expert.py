@@ -49,7 +49,6 @@ class Expert:
 
     @staticmethod
     def initialize_query_strategy(self, prioritisation_criterion: str) -> None:
-
         """
         This method initializes prioritisation criterion
 
@@ -69,7 +68,6 @@ class Expert:
 
     @staticmethod
     def least_confident_criterion(softmax_outputs: tensor, n: int) -> tensor:
-
         """
         This method implements the "Least Confidence" strategy
 
@@ -84,7 +82,6 @@ class Expert:
 
     @staticmethod
     def margin_sampling_criterion(softmax_outputs: tensor, n: int) -> tensor:
-
         """
         This method implements the "Margin Sampling" strategy
 
@@ -100,7 +97,6 @@ class Expert:
 
     @staticmethod
     def entropy_sampling_criterion(softmax_outputs: tensor, n: int) -> tensor:
-
         """
         This method implements the "Entropy Sampling" strategy
 
@@ -114,7 +110,6 @@ class Expert:
         return prioritisation_softmax_indices
 
     def get_class_distribution(self, dataset: Dataset) -> dict:
-
         """
         Count number of instances of each class in the dataset.
         Inspired from code at : https://towardsdatascience.com/pytorch-basics-sampling-samplers-2a0f29f0bf2a
