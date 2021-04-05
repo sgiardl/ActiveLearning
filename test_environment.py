@@ -32,7 +32,7 @@ if __name__ == '__main__':
     dataset_manager = DatasetManager(CIFAR10, valid_size=0.1)
     data_loader_manager = DataLoaderManager(dataset_manager, query_strategy='least_confident',
                                             batch_size=100, shuffle=False, num_workers=8)
-    query_strategies = ['least_confident', 'margin_sampling']
+    query_strategies = ['least_confident', 'margin_sampling', 'entropy_sampling']
 
     for i in range(len(query_strategies)):
         data_loader_manager(query_strategy=query_strategies[i])
