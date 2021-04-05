@@ -5,7 +5,7 @@ The indices are then fed to a Pytorch SubsetRandomSampler used by the training D
 """
 
 from numpy.random import choice
-from typing import Callable, Union
+from typing import Union
 from torch import tensor, nonzero
 from torch.utils.data import SubsetRandomSampler, Dataset, Subset
 import matplotlib.pyplot as plt
