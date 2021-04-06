@@ -4,11 +4,14 @@ This file stores all functions related to model training.
 import os
 import numpy as np
 import torch
-from torch.utils.data import Subset
+from torch.utils.data import Subset, Dataset
+from torch import tensor
+from torch.nn.functional import softmax
 from src.data.DataLoaderManager import DataLoaderManager
 import matplotlib.pyplot as plt
 from .model import load_zoo_models
 from tqdm import tqdm
+from typing import Sequence, Union
 
 
 class TrainValidTestManager:
@@ -222,6 +225,32 @@ class TrainValidTestManager:
 
         # Print mean test accuracy over all batches
         print(f'\nTest Accuracy: {np.mean(accuracy_list):.5f}')
+
+    def evaluate_unlabeled(self, unlabeled_dataset: Union[Subset, Dataset], unlabeled_idx: Sequence[int]) -> tensor:
+        """
+        Returns softmax of the prediction
+        :param unlabeled_dataset: Subset or dataset containining unlabeled data
+        :param unlabeled_idx: unlabeled data indices
+        :return: softmax outputs
+        """
+        if type(unlabeled_dataset) == Subset:
+            images, _ = unlabeled_dataset.dataset[unlabeled_idx]
+        else:
+            images, _ = unlabeled_dataset[unlabeled_idx]
+
+        # Specify that the model will be evaluated
+        self.model.eval()
+
+        # Deactivate the autograd engine
+        with torch.no_grad():
+
+            # Send images and labels to the device
+            images = images.to(self.device)
+
+            # Perform a forward pass
+            outputs = self.model.forward(images)
+
+        return softmax(outputs, dim=1)
 
     @staticmethod
     def get_accuracy(outputs: torch.Tensor, labels: torch.Tensor) -> float:
