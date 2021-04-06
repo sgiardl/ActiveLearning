@@ -199,7 +199,7 @@ class TrainValidTestManager:
         self.valid_loss_list.append(mean_loss)
         self.valid_accuracy_list.append(mean_accuracy)
 
-    def test_model(self) -> None:
+    def test_model(self) -> float:
         """
         Method to test the model saved in the self.model class attribute.
 
@@ -224,7 +224,9 @@ class TrainValidTestManager:
                 accuracy_list.append(self.get_accuracy(outputs, labels))
 
         # Print mean test accuracy over all batches
-        print(f'\nTest Accuracy: {np.mean(accuracy_list):.5f}')
+        mean_accuracy = np.mean(accuracy_list)
+        print(f'\nTest Accuracy: {mean_accuracy:.5f}')
+        return mean_accuracy
 
     def evaluate_unlabeled(self, unlabeled_dataset: Union[Subset, Dataset], unlabeled_idx: Sequence[int]) -> tensor:
         """
