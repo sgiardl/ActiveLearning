@@ -70,6 +70,14 @@ class TrainValidTestManager:
         self.valid_loss_list = []
         self.valid_accuracy_list = []
 
+    def update_train_loader(self, data_loader_manager: DataLoaderManager) -> None:
+        """
+        Updates the train loader
+
+        :param data_loader_manager: DataLoaderManager
+        """
+        self.data_loader_train = data_loader_manager.data_loader_train
+
     def train_model(self, epochs: int) -> None:
         """
         Trains the model and saves the trained model.
@@ -224,4 +232,4 @@ class TrainValidTestManager:
         :param labels: torch.Tensor, ground truth labels classes
         :return: float, accuracy of the predicted outputs vs the ground truth labels
         """
-        return (outputs.argmax(dim=1) == labels).sum().item() / labels.size(0)
+        return (outputs.argmax(dim=1) == labels).sum().item() / labels.shape[0]
