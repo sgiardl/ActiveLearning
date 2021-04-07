@@ -45,7 +45,6 @@ if __name__ == '__main__':
         train_valid_test_manager.test_model()
 
         visualization_manager.show_loss_acc_chart(train_valid_test_manager)
-
-        data_loader_manager.expert.show_labels_history()
+        visualization_manager.show_labels_history(data_loader_manager.expert)
 
     # show charts
