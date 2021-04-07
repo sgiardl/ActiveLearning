@@ -28,12 +28,14 @@ class ActiveLearner:
         :param lr: Learning rate of the model during training
         :param pretrained: Bool indicating if the model used must be pretrained on ImageNet
         """
+        assert improvement_threshold > 0, "Threshold must be greater than 0"
 
         # We first initialize an expert
         self.expert = Expert(dataset_manager.dataset_train, n_start, query_strategy)
 
-        # We initialize DataLoaderManager
+        # We initialize DataLoaderManager and save DatasetManager
         self.loader_manager = DataLoaderManager(dataset_manager, self.expert, batch_size, shuffle, num_workers)
+        self.dataset_manager = dataset_manager
 
         # We initialize TrainValidTestManager
         self.training_manager = TrainValidTestManager(self.loader_manager, saving_file_name, model, lr, pretrained)
@@ -46,22 +48,63 @@ class ActiveLearner:
 
         # We initialize attributes to keep track of active learning loops
         self.loop_progress = []
-        self.last_accuracy = None
+        self.last_accuracy = 0
+
+    def update_labeled_items(self):
+        """
+        Updates DataLoaderManager and TrainValidTestManager
+        """
+
+        # Update of DataLoaderManager
+        self.loader_manager.update(self.expert)
+
+        # Update TrainValidTestManager
+        self.training_manager.update_train_loader(self.loader_manager)
+
+        print(self.loader_manager.unlabeled_idx)
 
     def __call__(self):
 
+        print(self.loader_manager.unlabeled_idx)
+        print("Active Learning Started")
+        i = 0
         while True:
 
+            # We update a string that will be used for multiple prints
+            loop_reference = f"Active Loop #{i}"
+
             # We train the model on labeled image in the training set
+            print(f"{loop_reference} - Training...")
             self.training_manager.train_model(self.epochs)
 
             # We evaluate our model on the current test set
+            print(f"{loop_reference} - Test...")
             accuracy = self.training_manager.test_model()
+            self.loop_progress.append(accuracy)
+            print(f"{loop_reference} - Test Accuracy {accuracy}")
 
-            if accuracy - self.last_accuracy < self.threshold or accuracy >= self.goal:
+            # We look if stopping conditions are reached
+            accuracy_diff = accuracy - self.last_accuracy
+            print(f"{loop_reference} - Accuracy Difference {accuracy_diff}")
+            if accuracy_diff < self.threshold or accuracy >= self.goal:
+                print("Active learning stop - Stopping criteria reached")
                 break
 
+            # We update last accuracy attribute
             self.last_accuracy = accuracy
+
+            # We make prediction on the unlabeled data
+            print(f"{loop_reference} - Unlabeled Evaluation")
+            unlabeled_softmax = self.training_manager.evaluate_unlabeled(self.dataset_manager.dataset_train,
+                                                                         self.loader_manager.unlabeled_idx)
+
+            # We request labels to our expert
+            print(f"{loop_reference} - Labels Request")
+            self.expert.add_labels(self.loader_manager.unlabeled_idx, unlabeled_softmax,
+                                   self.n_new, self.dataset_manager.dataset_train)
+
+            # We update internal attributes
+            self.update_labeled_items()
 
 
 
