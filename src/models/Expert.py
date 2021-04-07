@@ -47,7 +47,6 @@ class Expert:
         # We initialize the sampler object
         self.update_expert_sampler()
 
-    @staticmethod
     def initialize_query_strategy(self, prioritisation_criterion: str) -> None:
         """
         This method initializes prioritisation criterion
