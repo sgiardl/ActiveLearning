@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 class DataLoaderManager:
     def __init__(self,
                  dataset_manager: DatasetManager,
-                 query_strategy: str,
+                 expert: Expert,
                  batch_size: int,
                  shuffle: bool = False,
                  num_workers: int = 1) -> None:
@@ -15,35 +15,47 @@ class DataLoaderManager:
 
         :param dataset_manager: DatasetManager, dataset manager containing the
                                 training, validation and testing datasets
-        :param query_strategy: string, query strategy, either
+        :param expert: expert
         :param batch_size: int, batch size for forward pass
         :param shuffle: bool, to shuffle the data loaders
         :param num_workers: int, number of multiprocessing workers,
                             should be smaller or equal to the number of cpu threads
         """
+        # We save important attributes for further dataloader updates
         self.dataset_manager = dataset_manager
         self.batch_size = batch_size
         self.shuffle = shuffle
         self.num_workers = num_workers
-
         self.dataset_train = dataset_manager.dataset_train
-        self.dataset_valid = dataset_manager.dataset_valid
-        self.dataset_test = dataset_manager.dataset_test
+        self.train_length = len(self.dataset_train)
 
-        self.expert = Expert(self.dataset_train, 2, query_strategy)
+        # We keep track of unlabeled index
+        self.unlabeled_idx = []
+        self.__update_unlabeled_idx(expert)
 
+        # We initialize dataloaders
         self.data_loader_train = DataLoader(self.dataset_train, batch_size=batch_size, shuffle=shuffle,
-                                            num_workers=num_workers, sampler=self.expert.sampler)
+                                            num_workers=num_workers, sampler=expert.sampler)
 
-        self.data_loader_valid = DataLoader(self.dataset_valid, batch_size=batch_size, shuffle=shuffle,
-                                            num_workers=num_workers)
+        self.data_loader_valid = DataLoader(dataset_manager.dataset_valid, batch_size=batch_size,
+                                            shuffle=shuffle, num_workers=num_workers)
 
-        self.data_loader_test = DataLoader(self.dataset_test, batch_size=batch_size, shuffle=shuffle,
-                                           num_workers=num_workers)
+        self.data_loader_test = DataLoader(dataset_manager.dataset_test, batch_size=batch_size,
+                                           shuffle=shuffle, num_workers=num_workers)
 
-    def __call__(self, *args, **kwargs) -> None:
-        self.expert = Expert(self.dataset_train, 2, kwargs.get('query_strategy'))
+    def __update_unlabeled_idx(self, expert: Expert) -> None:
+        """
+        Updates the unlabeled idx in the training dataset
+        :param expert: Expert
+        """
+        self.unlabeled_idx = [i for i in range(self.train_length) if i not in expert.labeled_idx]
 
+    def update(self, expert: Expert) -> None:
+
+        # We update unlabeled indices
+        self.__update_unlabeled_idx(expert)
+
+        # We update the train loader
         self.data_loader_train = DataLoader(self.dataset_train, batch_size=self.batch_size,
                                             shuffle=self.shuffle, num_workers=self.num_workers,
-                                            sampler=self.expert.sampler)
+                                            sampler=expert.sampler)
