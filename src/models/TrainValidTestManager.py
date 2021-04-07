@@ -4,7 +4,7 @@ This file stores all functions related to model training.
 import os
 import numpy as np
 import torch
-from torch.utils.data import Subset, Dataset
+from torch.utils.data import Subset, Dataset, DataLoader
 from torch import tensor
 from torch.nn.functional import softmax
 from src.data.DataLoaderManager import DataLoaderManager
@@ -228,17 +228,13 @@ class TrainValidTestManager:
         print(f'\nTest Accuracy: {mean_accuracy:.5f}')
         return mean_accuracy
 
-    def evaluate_unlabeled(self, unlabeled_dataset: Union[Subset, Dataset], unlabeled_idx: Sequence[int]) -> tensor:
+    def evaluate_unlabeled(self, unlabeled_subset: Subset) -> tensor:
         """
         Returns softmax of the prediction
-        :param unlabeled_dataset: Subset or dataset containining unlabeled data
-        :param unlabeled_idx: unlabeled data indices
+        :param unlabeled_subset: Subset containing unlabeled data
         :return: softmax outputs
         """
-        if type(unlabeled_dataset) == Subset:
-            images, _ = unlabeled_dataset.dataset[unlabeled_idx]
-        else:
-            images, _ = unlabeled_dataset[unlabeled_idx]
+        unlabeled_loader = DataLoader(unlabeled_subset, batch_size=len(unlabeled_subset.dataset))
 
         # Specify that the model will be evaluated
         self.model.eval()
@@ -246,7 +242,8 @@ class TrainValidTestManager:
         # Deactivate the autograd engine
         with torch.no_grad():
 
-            # Send images and labels to the device
+            # Send images to the device
+            images, _ = next(iter(unlabeled_loader))
             images = images.to(self.device)
 
             # Perform a forward pass
