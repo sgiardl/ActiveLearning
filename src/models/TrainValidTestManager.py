@@ -32,7 +32,7 @@ class TrainValidTestManager:
 
         # Extract the training, validation and testing data loaders
         self.data_loader_train = data_loader_manager.data_loader_train
-        self.data_loader_valid = data_loader_manager.data_loader_valid
+        self.data_loader_valid_1 = data_loader_manager.data_loader_valid_1
         self.data_loader_test = data_loader_manager.data_loader_test
 
         # Save the file name
@@ -166,7 +166,7 @@ class TrainValidTestManager:
 
         # Deactivate the autograd engine
         with torch.no_grad():
-            for i, (images, labels) in enumerate(self.data_loader_valid):
+            for i, (images, labels) in enumerate(self.data_loader_valid_1):
                 # Send images and labels to the device
                 images, labels = images.to(self.device), labels.to(self.device)
 

@@ -12,12 +12,14 @@ DATASETS = [CIFAR10, EMNIST]
 
 class DatasetManager:
     def __init__(self, dataset_name: str,
-                 valid_size: float) -> None:
+                 valid_size_1: float,
+                 valid_size_2: float) -> None:
         """
         Dataset Manager class, handles the creation of the training, validation and testing datasets.
 
         :param dataset_name: string, name of the dataset to load
-        :param valid_size: float, size of validation subset as a fraction of the training set
+        :param valid_size_1: float, size of validation subset 1 as a fraction of the training set
+        :param valid_size_2: float, size of validation subset 2 as a fraction of the training set
         """
         dataset_train = self.get_dataset(name=dataset_name, root=f"{os.getcwd()}/data/raw",
                                          composed_transforms=self.get_transforms(), train=True)
@@ -25,7 +27,9 @@ class DatasetManager:
         self.dataset_test = self.get_dataset(name=dataset_name, root=f"{os.getcwd()}/data/raw",
                                              composed_transforms=self.get_transforms(), train=False)
 
-        self.dataset_train, self.dataset_valid = self.split_dataset(dataset_train, valid_size)
+        self.dataset_train, self.dataset_valid_1, self.dataset_valid_2 = self.split_dataset(dataset_train,
+                                                                                            valid_size_1,
+                                                                                            valid_size_2)
 
     @staticmethod
     def get_dataset(name: str, root: str, composed_transforms: transforms.Compose = None,
@@ -53,24 +57,33 @@ class DatasetManager:
                                    transform=composed_transforms, download=download, train=train)
 
     @staticmethod
-    def split_dataset(dataset: datasets, split_size: float) -> (Subset, Subset):
+    def split_dataset(dataset: datasets, split_size_1: float, split_size_2: float) -> (Subset, Subset, Subset):
         """
         Splits a dataset into two subsets.
 
         :param dataset: torchvision.datasets, input PyTorch dataset object to split
-        :param split_size: float, proportion of dataset to include in subset_2.
-                           The complement will be included in subset_1.
-        :return: tuple, subset_1 and subset_2
+        :param split_size_1: float, proportion of dataset to include in subset_2.
+                             The complement will be included in subset_1 & 3.
+        :param split_size_2: float, proportion of dataset to include in subset_3.
+                             The complement will be included in subset_1 & 2.
+        :return: tuple, subset_1, subset_2 and subset_3
         """
         # Declare generator object for indices of stratified shuffle split
-        strat_split = StratifiedShuffleSplit(n_splits=1, test_size=split_size)
+        strat_split = StratifiedShuffleSplit(n_splits=1, test_size=split_size_1)
 
         # Iterate through generator object once and break
         for index_1, index_2 in strat_split.split(np.zeros(len(dataset.targets)), dataset.targets):
             break
 
-        # Return subsets 1 and 2
-        return Subset(dataset, index_1), Subset(dataset, index_2)
+        # Declare generator object for indices of stratified shuffle split
+        strat_split = StratifiedShuffleSplit(n_splits=1, test_size=split_size_2)
+
+        # Iterate through generator object once and break
+        for index_1, index_3 in strat_split.split(np.zeros(len(index_1)), [dataset.targets[i] for i in index_1]):
+            break
+
+        # Return subsets 1, 2 and 3
+        return Subset(dataset, index_1), Subset(dataset, index_2), Subset(dataset, index_3)
 
     @staticmethod
     def get_transforms() -> transforms.Compose:
