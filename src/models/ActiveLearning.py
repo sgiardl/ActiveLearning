@@ -2,6 +2,7 @@ from src.models.Expert import Expert
 from src.models.TrainValidTestManager import TrainValidTestManager
 from src.data.DatasetManager import DatasetManager
 from src.data.DataLoaderManager import DataLoaderManager
+from torch.utils.data import Subset
 
 
 class ActiveLearner:
@@ -61,11 +62,9 @@ class ActiveLearner:
         # Update TrainValidTestManager
         self.training_manager.update_train_loader(self.loader_manager)
 
-        print(self.loader_manager.unlabeled_idx)
-
     def __call__(self):
 
-        print(self.loader_manager.unlabeled_idx)
+        print(f"Unlabled items : {len(self.loader_manager.unlabeled_idx)}")
         print("Active Learning Started")
         i = 0
         while True:
@@ -78,16 +77,17 @@ class ActiveLearner:
             self.training_manager.train_model(self.epochs)
 
             # We evaluate our model on the current test set
-            print(f"{loop_reference} - Test...")
+            print(f"\n{loop_reference} - Test...")
             accuracy = self.training_manager.test_model()
             self.loop_progress.append(accuracy)
-            print(f"{loop_reference} - Test Accuracy {accuracy}")
+            print(f"{loop_reference} - Test Accuracy {round(accuracy,4)}")
 
             # We look if stopping conditions are reached
             accuracy_diff = accuracy - self.last_accuracy
-            print(f"{loop_reference} - Accuracy Difference {accuracy_diff}")
+            print(f"{loop_reference} - Accuracy Difference {round(accuracy_diff,4)}")
             if accuracy_diff < self.threshold or accuracy >= self.goal:
                 print("Active learning stop - Stopping criteria reached")
+                self.expert.show_labels_history(show=True)
                 break
 
             # We update last accuracy attribute
@@ -95,8 +95,8 @@ class ActiveLearner:
 
             # We make prediction on the unlabeled data
             print(f"{loop_reference} - Unlabeled Evaluation")
-            unlabeled_softmax = self.training_manager.evaluate_unlabeled(self.dataset_manager.dataset_train,
-                                                                         self.loader_manager.unlabeled_idx)
+            unlabeled_dataset = Subset(self.dataset_manager.dataset_train.dataset, self.loader_manager.unlabeled_idx)
+            unlabeled_softmax = self.training_manager.evaluate_unlabeled(unlabeled_dataset)
 
             # We request labels to our expert
             print(f"{loop_reference} - Labels Request")
@@ -106,5 +106,6 @@ class ActiveLearner:
             # We update internal attributes
             self.update_labeled_items()
 
+            print(f"{loop_reference} - Unlabeled items : {len(self.loader_manager.unlabeled_idx)}")
 
 
