@@ -5,10 +5,8 @@ The indices are then fed to a Pytorch SubsetRandomSampler used by the training D
 """
 
 from numpy.random import choice
-from typing import Union
 from torch import tensor, nonzero
 from torch.utils.data import SubsetRandomSampler, Dataset, Subset
-import matplotlib.pyplot as plt
 import torch
 from torch.distributions import Categorical
 
@@ -196,37 +194,6 @@ class Expert:
             prioritisation_idx = prioritisation_indices[i]
             _, prioritisation_class = dataset.__getitem__(self.labeled_idx[prioritisation_idx])
             self.labeled_history[prioritisation_class][0] += 1
-
-    def show_labels_history(self, show: bool = True, save_path: Union[str, None] = None,
-                            fig_format: str = 'pdf') -> None:
-        """
-        Plot the growth of labeled items per class throughout the active learning iteration
-
-        :param show: Boolean indicating we want to show the figure
-        :param save_path: Path to save the image. The paths must include the file name. (None == unsaved)
-        :param fig_format: Format used to save the figure
-        """
-
-        # We save the number of active learning iterations done
-        x = range(len(self.labeled_history[0]))
-        for k, history in self.labeled_history.items():
-            plt.plot(x, history, label=self.idx_to_class[k])
-
-        # We set x-axis steps
-        plt.xticks(x)
-
-        # We set axis labels and legend
-        plt.ylabel('Number of labeled images')
-        plt.xlabel('Active learning iterations')
-        plt.legend()
-
-        # We show the plot
-        if show:
-            plt.show()
-
-        # We save it
-        if save_path is not None:
-            plt.savefig(f"{save_path}.{fig_format}")
 
     def update_expert_sampler(self) -> None:
         """
