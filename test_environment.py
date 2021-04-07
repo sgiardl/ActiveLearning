@@ -35,6 +35,7 @@ if __name__ == '__main__':
                                             batch_size=100, shuffle=False, num_workers=8)
     visualization_manager = VisualizationManager()
     query_strategies = ['least_confident', 'margin_sampling']
+    accuracy_dic = {}
 
     for i in range(len(query_strategies)):
         data_loader_manager(query_strategy=query_strategies[i])
@@ -44,7 +45,9 @@ if __name__ == '__main__':
         train_valid_test_manager.train_model(epochs=20)
         train_valid_test_manager.test_model()
 
-        visualization_manager.show_loss_acc_chart(train_valid_test_manager)
+        visualization_manager.show_loss_acc_chart(train_valid_test_manager.results)
         visualization_manager.show_labels_history(data_loader_manager.expert)
 
-    # show charts
+        accuracy_dic[query_strategies[i]] = train_valid_test_manager.results['Training Accuracy']
+
+    visualization_manager.show_learning_curve(accuracy_dic)

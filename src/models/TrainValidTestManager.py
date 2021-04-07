@@ -61,13 +61,13 @@ class TrainValidTestManager:
         # Send the model to the device
         self.model.to(self.device)
 
-        # Declare empty training loss and accuracy lists
-        self.train_loss_list = []
-        self.train_accuracy_list = []
-
-        # Declare empty validation loss and accuracy lists
-        self.valid_loss_list = []
-        self.valid_accuracy_list = []
+        # Results dictionary
+        self.results = {
+            'Training Loss': [],
+            'Training Accuracy': [],
+            'Validation Loss': [],
+            'Validation Accuracy': []
+        }
 
     def train_model(self, epochs: int) -> None:
         """
@@ -121,8 +121,8 @@ class TrainValidTestManager:
             pbar.reset()
 
             # Save the training loss and accuracy in the object
-            self.train_loss_list.append(np.mean(loss_list_epoch))
-            self.train_accuracy_list.append(np.mean(accuracy_list_epoch))
+            self.results['Training Loss'].append(np.mean(loss_list_epoch))
+            self.results['Training Accuracy'].append(np.mean(accuracy_list_epoch))
 
             # Validate the model
             self.validate_model()
@@ -165,8 +165,8 @@ class TrainValidTestManager:
         mean_accuracy = np.mean(accuracy_list)
 
         # Save mean loss and mean accuracy in the object
-        self.valid_loss_list.append(mean_loss)
-        self.valid_accuracy_list.append(mean_accuracy)
+        self.results['Validation Loss'].append(mean_loss)
+        self.results['Validation Accuracy'].append(mean_accuracy)
 
     def test_model(self) -> None:
         """
