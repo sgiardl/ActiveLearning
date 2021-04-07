@@ -6,7 +6,6 @@ import numpy as np
 import torch
 from torch.utils.data import Subset
 from src.data.DataLoaderManager import DataLoaderManager
-import matplotlib.pyplot as plt
 from .model import load_zoo_models
 from tqdm import tqdm
 
@@ -127,25 +126,6 @@ class TrainValidTestManager:
 
             # Validate the model
             self.validate_model()
-
-        # Display and format chart of loss and accuracy per epoch
-        fig, (ax1, ax2) = plt.subplots(1, 2)
-
-        ax1.plot(self.train_loss_list, marker='.', label='Training')
-        ax1.plot(self.valid_loss_list, marker='.', label='Validation')
-        ax1.legend(loc='upper right')
-        ax1.set_title('Mean loss per epoch')
-        ax1.set(xlabel='Epoch', ylabel='Mean loss')
-
-        ax2.plot(self.train_accuracy_list, marker='.', label='Training')
-        ax2.plot(self.valid_accuracy_list, marker='.', label='Validation')
-        ax2.legend(loc='upper right')
-        ax2.set_ylim([0, 1])
-        ax2.set_title('Mean accuracy per epoch')
-        ax2.set(xlabel='Epoch', ylabel='Mean accuracy')
-
-        fig.tight_layout()
-        fig.show()
 
         # If file_name is specified, save the trained model
         if self.file_name is not None:

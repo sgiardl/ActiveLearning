@@ -4,6 +4,7 @@ from src.data.DataLoaderManager import DataLoaderManager
 from src.data.constants import *
 from src.models.constants import *
 from src.models.TrainValidTestManager import TrainValidTestManager
+from src.visualization.VisualizationManager import VisualizationManager
 
 REQUIRED_PYTHON = "python3"
 
@@ -32,6 +33,7 @@ if __name__ == '__main__':
     dataset_manager = DatasetManager(CIFAR10, valid_size_1=0.1, valid_size_2=0.05)
     data_loader_manager = DataLoaderManager(dataset_manager, query_strategy='least_confident',
                                             batch_size=100, shuffle=False, num_workers=8)
+    visualization_manager = VisualizationManager()
     query_strategies = ['least_confident', 'margin_sampling']
 
     for i in range(len(query_strategies)):
@@ -42,7 +44,7 @@ if __name__ == '__main__':
         train_valid_test_manager.train_model(epochs=20)
         train_valid_test_manager.test_model()
 
-        # show chart
+        visualization_manager.show_loss_acc_chart(train_valid_test_manager)
 
         data_loader_manager.expert.show_labels_history()
 
