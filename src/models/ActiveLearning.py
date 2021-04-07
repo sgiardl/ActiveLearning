@@ -70,6 +70,7 @@ class ActiveLearner:
         while True:
 
             # We update a string that will be used for multiple prints
+            i += 1
             loop_reference = f"Active Loop #{i}"
 
             # We train the model on labeled image in the training set
