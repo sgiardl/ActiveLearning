@@ -32,13 +32,13 @@ class VisualizationManager:
 
         ax1.plot(train_valid_test_manager.train_loss_list, marker=self.marker, label=self.train_label)
         ax1.plot(train_valid_test_manager.valid_loss_list, marker=self.marker, label=self.valid_label)
-        ax1.legend(self.legend_loc)
+        ax1.legend(loc=self.legend_loc)
         ax1.set_title('Mean loss per epoch')
         ax1.set(xlabel='Epoch', ylabel='Mean loss')
 
         ax2.plot(train_valid_test_manager.train_accuracy_list, marker=self.marker, label=self.train_label)
         ax2.plot(train_valid_test_manager.valid_accuracy_list, marker=self.marker, label=self.valid_label)
-        ax2.legend(self.legend_loc)
+        ax2.legend(loc=self.legend_loc)
         ax2.set_ylim([0, 1])
         ax2.set_title('Mean accuracy per epoch')
         ax2.set(xlabel='Epoch', ylabel='Mean accuracy')
@@ -76,7 +76,7 @@ class VisualizationManager:
         # We set axis labels and legend
         plt.ylabel('Number of labeled images')
         plt.xlabel('Active learning iterations')
-        plt.legend(self.legend_loc)
+        plt.legend(loc=self.legend_loc)
 
         # We show the plot
         if show:
