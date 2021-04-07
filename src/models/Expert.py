@@ -10,11 +10,11 @@ from torch.utils.data import SubsetRandomSampler, Dataset, Subset
 import torch
 from torch.distributions import Categorical
 
-PRIORITISATION_CRITERION = ['least_confident', 'margin_sampling', 'entropy_sampling']
+PRIORITISATION_CRITERION = ['random_sampling', 'least_confident', 'margin_sampling', 'entropy_sampling']
 
 
 class Expert:
-    def __init__(self, dataset: Dataset, n: int, query_strategy: str):
+    def __init__(self, dataset: Dataset, n: int, query_strategy: str = 'random_sampling'):
         """
         Select randomly n items from each class of the training dataset.
         These will be the first labeled items from our expert.
@@ -28,9 +28,9 @@ class Expert:
         self.initialize_query_strategy(self, query_strategy)
 
         if type(dataset) == Subset:
-            self.idx2class = {v: k for k, v in dataset.dataset.class_to_idx.items()}
+            self.idx_to_class = {v: k for k, v in dataset.dataset.class_to_idx.items()}
         else:
-            self.idx2class = {v: k for k, v in dataset.class_to_idx.items()}
+            self.idx_to_class = {v: k for k, v in dataset.class_to_idx.items()}
 
         # We retrieve class distribution from the dataset
         class_dist = self.get_class_distribution(dataset)
@@ -40,14 +40,12 @@ class Expert:
         # We "label" n images of each class
         self.labeled_idx = []
         self.initialize_labels(dataset, n)
-        self.labeled_history = {k: [n] for k in self.idx2class.keys()}
+        self.labeled_history = {k: [n] for k in self.idx_to_class.keys()}
 
         # We initialize the sampler object
         self.update_expert_sampler()
 
-    @staticmethod
     def initialize_query_strategy(self, prioritisation_criterion: str) -> None:
-
         """
         This method initializes prioritisation criterion
 
@@ -55,19 +53,29 @@ class Expert:
         """
         if prioritisation_criterion not in PRIORITISATION_CRITERION:
             raise Exception("The prioritisation_criterion provided must be in {PRIORITISATION_CRITERION}")
+        elif prioritisation_criterion == 'random_sampling':
+            self.criterion = self.random_sampling_criterion
         elif prioritisation_criterion == 'least_confident':
             self.criterion = self.least_confident_criterion
         elif prioritisation_criterion == 'margin_sampling':
             self.criterion = self.margin_sampling_criterion
         elif prioritisation_criterion == 'entropy_sampling':
             self.criterion = self.entropy_sampling_criterion
-        # else:
-        #     self.criterion = random
-        # should be random by default
+
+    @staticmethod
+    def random_sampling_criterion(softmax_outputs: tensor, n: int) -> tensor:
+        """
+        This method randomly selects n indices
+
+        :param softmax_outputs: Softmax outputs of our model of the unlabeled data
+        :param n: Number of items to label
+        :return: tensor
+        """
+        prioritisation_random_indices = torch.randperm(len(softmax_outputs))[0:n]
+        return prioritisation_random_indices
 
     @staticmethod
     def least_confident_criterion(softmax_outputs: tensor, n: int) -> tensor:
-
         """
         This method implements the "Least Confidence" strategy
 
@@ -82,7 +90,6 @@ class Expert:
 
     @staticmethod
     def margin_sampling_criterion(softmax_outputs: tensor, n: int) -> tensor:
-
         """
         This method implements the "Margin Sampling" strategy
 
@@ -98,7 +105,6 @@ class Expert:
 
     @staticmethod
     def entropy_sampling_criterion(softmax_outputs: tensor, n: int) -> tensor:
-
         """
         This method implements the "Entropy Sampling" strategy
 
@@ -112,7 +118,6 @@ class Expert:
         return prioritisation_softmax_indices
 
     def get_class_distribution(self, dataset: Dataset) -> dict:
-
         """
         Count number of instances of each class in the dataset.
         Inspired from code at : https://towardsdatascience.com/pytorch-basics-sampling-samplers-2a0f29f0bf2a
@@ -129,7 +134,7 @@ class Expert:
 
         # We count number of items in each class
         for item in dataset:
-            count_dict[self.idx2class[item[1]]] += 1
+            count_dict[self.idx_to_class[item[1]]] += 1
 
         return count_dict
 
@@ -147,14 +152,14 @@ class Expert:
             targets = tensor(dataset.targets)
 
         # For each class we select n items randomly without replacement
-        for k, _ in self.idx2class.items():
+        for k, _ in self.idx_to_class.items():
             class_idx = (nonzero(targets == k)).squeeze()
             self.labeled_idx.extend(choice(class_idx, n, replace=False))
 
         # We turn the indexes list into a tensor
         self.labeled_idx = tensor(self.labeled_idx)
 
-    def add_labels(self, unlabeled_data_idx, softmax_outputs, n: int, dataset: Dataset) -> None:
+    def add_labels(self, unlabeled_data_idx, softmax_outputs: tensor, n: int, dataset: Dataset) -> None:
         """
         Add labels based on prioritisation criterion used
 
@@ -177,7 +182,7 @@ class Expert:
         # Update the expert sampler
         self.update_expert_sampler()
 
-    def update_labels_history(self, n: int, dataset: Dataset, prioritisation_indices) -> None:
+    def update_labels_history(self, n: int, dataset: Dataset, prioritisation_indices: tensor) -> None:
         """
         Update labeled history
         :param n: Number of items to label
