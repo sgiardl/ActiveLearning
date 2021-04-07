@@ -4,6 +4,7 @@ from src.data.DataLoaderManager import DataLoaderManager
 from src.data.constants import *
 from src.models.constants import *
 from src.models.TrainValidTestManager import TrainValidTestManager
+from src.models.ActiveLearning import ActiveLearner
 
 REQUIRED_PYTHON = "python3"
 
@@ -27,23 +28,15 @@ def main():
 
 
 if __name__ == '__main__':
+
+    # Development tests
     main()
 
-    dataset_manager = DatasetManager(CIFAR10, valid_size=0.1)
-    data_loader_manager = DataLoaderManager(dataset_manager, query_strategy='least_confident',
-                                            batch_size=100, shuffle=False, num_workers=8)
-    query_strategies = ['least_confident', 'margin_sampling']
-
-    for i in range(len(query_strategies)):
-        data_loader_manager(query_strategy=query_strategies[i])
-        train_valid_test_manager = TrainValidTestManager(data_loader_manager, file_name='model',
-                                                         model_name=SQUEEZE_NET_1_1, learning_rate=0.0001,
-                                                         pretrained=True)
-        train_valid_test_manager.train_model(epochs=20)
-        train_valid_test_manager.test_model()
-
-        # show chart
-
-        data_loader_manager.expert.show_labels_history()
+    # Active learning test
+    dataset_manager = DatasetManager(CIFAR10, valid_size=0.10)
+    active_learner = ActiveLearner(RESNET34, dataset_manager, n_start=200, n_new=50, epochs=10,
+                                   accuracy_goal=0.40, improvement_threshold=0.01, query_strategy='least_confident',
+                                   saving_file_name="test", batch_size=50, lr=0.001)
+    active_learner()
 
     # show charts
