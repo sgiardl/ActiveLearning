@@ -34,9 +34,9 @@ if __name__ == '__main__':
 
     # Active learning test
     dataset_manager = DatasetManager(CIFAR10, valid_size=0.10)
-    active_learner = ActiveLearner(RESNET34, dataset_manager, n_start=200, n_new=50, epochs=10,
-                                   accuracy_goal=0.40, improvement_threshold=0.01, query_strategy='least_confident',
-                                   saving_file_name="test", batch_size=50, lr=0.001)
+    active_learner = ActiveLearner(RESNET34, dataset_manager, n_start=20, n_new=50, epochs=10,
+                                   accuracy_goal=0.40, improvement_threshold=0.005, query_strategy='least_confident',
+                                   saving_file_name="test", batch_size=50, lr=0.001, pretrained=False)
     active_learner()
 
     # show charts
