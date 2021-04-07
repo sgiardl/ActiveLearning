@@ -168,29 +168,30 @@ class Expert:
         # Evaluate prioritisation score of each image using the softmax_outputs
         # and appropriate prioritisation criterion method
         prioritisation_softmax_indices = self.criterion(softmax_outputs, n)
-        prioritisation_indices = unlabeled_data_idx[prioritisation_softmax_indices]
+        prioritisation_indices = [unlabeled_data_idx[i] for i in prioritisation_softmax_indices]
 
         # Add the idx of the n most important images based on their prioritisation score
-        self.labeled_idx = torch.cat((self.labeled_idx, prioritisation_indices), dim=0)
+        self.labeled_idx = torch.cat((self.labeled_idx, tensor(prioritisation_indices)), dim=0)
 
         # Update the labeled history.
-        self.update_labels_history(n, dataset, prioritisation_indices)
+        self.update_labels_history(dataset, prioritisation_indices)
 
         # Update the expert sampler
         self.update_expert_sampler()
 
-    def update_labels_history(self, n: int, dataset: Dataset, prioritisation_indices) -> None:
+    def update_labels_history(self, dataset: Dataset, prioritisation_indices) -> None:
         """
         Update labeled history
-        :param n: Number of items to label
         :param dataset: PyTorch dataset
         :param prioritisation_indices: Dataloader with a single batch with all unlabeled images
         """
 
-        for i in range(n):
-            prioritisation_idx = prioritisation_indices[i]
-            _, prioritisation_class = dataset.__getitem__(self.labeled_idx[prioritisation_idx])
-            self.labeled_history[prioritisation_class][0] += 1
+        # We append the last count to the list associate to each class
+        for k, v in self.labeled_history.items():
+            v.append(v[-1])
+
+        for idx in prioritisation_indices:
+            self.labeled_history[dataset[idx][1]][-1] += 1
 
     def show_labels_history(self, show: bool = True, save_path: Union[str, None] = None,
                             fig_format: str = 'pdf') -> None:
