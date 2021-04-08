@@ -121,7 +121,7 @@ class ActiveLearner:
             self.visualization_manager.show_loss_acc_chart(self.training_manager.results)
 
             # We evaluate our model on the current test set
-            print(f"\n{loop_reference} - Test...")
+            print(f"{loop_reference} - Test...")
             accuracy = self.training_manager.test_model()
             self.loop_progress.append(accuracy)
             print(f"{loop_reference} - Test Accuracy {round(accuracy,4)}")
@@ -150,6 +150,6 @@ class ActiveLearner:
             # We update internal attributes
             self.update_labeled_items()
 
-            print(f"{loop_reference} - Unlabeled items : {len(self.loader_manager.unlabeled_idx)}")
+            print(f"{loop_reference} - Unlabeled items : {len(self.loader_manager.unlabeled_idx)}\n")
 
 
