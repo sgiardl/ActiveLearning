@@ -1,9 +1,8 @@
 import sys
 from src.data.DatasetManager import DatasetManager
-from src.data.DataLoaderManager import DataLoaderManager
 from src.data.constants import *
 from src.models.constants import *
-from src.models.TrainValidTestManager import TrainValidTestManager
+from src.models.ActiveLearning import ActiveLearner
 from src.visualization.VisualizationManager import VisualizationManager
 
 REQUIRED_PYTHON = "python3"
@@ -28,26 +27,14 @@ def main():
 
 
 if __name__ == '__main__':
+
+    # Development tests
     main()
 
-    dataset_manager = DatasetManager(CIFAR10, valid_size_1=0.1, valid_size_2=0.05)
-    data_loader_manager = DataLoaderManager(dataset_manager, query_strategy='least_confident',
-                                            batch_size=100, shuffle=False, num_workers=8)
-    visualization_manager = VisualizationManager()
-    query_strategies = ['least_confident', 'margin_sampling']
-    accuracy_dic = {}
+    # Active learning test
+    dataset_manager = DatasetManager(CIFAR10, valid_size_1=0.15, valid_size_2=0.15)
+    active_learner = ActiveLearner(RESNET34, dataset_manager, n_start=20, n_new=50, epochs=10,
+                                   accuracy_goal=0.22, improvement_threshold=0.005, query_strategy='least_confident',
+                                   experiment_name="test", batch_size=50, lr=0.001, pretrained=False)
+    active_learner()
 
-    for i in range(len(query_strategies)):
-        data_loader_manager(query_strategy=query_strategies[i])
-        train_valid_test_manager = TrainValidTestManager(data_loader_manager, file_name='model',
-                                                         model_name=SQUEEZE_NET_1_1, learning_rate=0.0001,
-                                                         pretrained=True)
-        train_valid_test_manager.train_model(epochs=20)
-        train_valid_test_manager.test_model()
-
-        visualization_manager.show_loss_acc_chart(train_valid_test_manager.results)
-        visualization_manager.show_labels_history(data_loader_manager.expert)
-
-        accuracy_dic[query_strategies[i]] = train_valid_test_manager.results['Training Accuracy']
-
-    visualization_manager.show_learning_curve(accuracy_dic)

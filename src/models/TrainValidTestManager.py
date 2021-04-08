@@ -4,10 +4,13 @@ This file stores all functions related to model training.
 import os
 import numpy as np
 import torch
-from torch.utils.data import Subset
+from torch.utils.data import Subset, Dataset, DataLoader
+from torch import tensor
+from torch.nn.functional import softmax
 from src.data.DataLoaderManager import DataLoaderManager
 from .model import load_zoo_models
 from tqdm import tqdm
+from typing import Sequence, Union
 
 
 class TrainValidTestManager:
@@ -32,6 +35,7 @@ class TrainValidTestManager:
         # Extract the training, validation and testing data loaders
         self.data_loader_train = data_loader_manager.data_loader_train
         self.data_loader_valid_1 = data_loader_manager.data_loader_valid_1
+        self.data_loader_valid_2 = data_loader_manager.data_loader_valid_2
         self.data_loader_test = data_loader_manager.data_loader_test
 
         # Save the file name
@@ -68,6 +72,14 @@ class TrainValidTestManager:
             'Validation Loss': [],
             'Validation Accuracy': []
         }
+
+    def update_train_loader(self, data_loader_manager: DataLoaderManager) -> None:
+        """
+        Updates the train loader
+
+        :param data_loader_manager: DataLoaderManager
+        """
+        self.data_loader_train = data_loader_manager.data_loader_train
 
     def train_model(self, epochs: int) -> None:
         """
@@ -168,10 +180,12 @@ class TrainValidTestManager:
         self.results['Validation Loss'].append(mean_loss)
         self.results['Validation Accuracy'].append(mean_accuracy)
 
-    def test_model(self) -> None:
+    def test_model(self, final_eval: bool = False) -> float:
         """
         Method to test the model saved in the self.model class attribute.
 
+        :param final_eval: bool indicating we are evaluating the model on the final test set
+                           after active learning is done
         :return: None
         """
         # Specify that the model will be evaluated
@@ -180,9 +194,12 @@ class TrainValidTestManager:
         # Initialize empty accuracy list
         accuracy_list = []
 
+        # We select the good loader
+        loader = self.data_loader_test if final_eval else self.data_loader_valid_2
+
         # Deactivate the autograd engine
         with torch.no_grad():
-            for i, (images, labels) in enumerate(self.data_loader_test):
+            for i, (images, labels) in enumerate(loader):
                 # Send images and labels to the device
                 images, labels = images.to(self.device), labels.to(self.device)
 
@@ -193,7 +210,32 @@ class TrainValidTestManager:
                 accuracy_list.append(self.get_accuracy(outputs, labels))
 
         # Print mean test accuracy over all batches
-        print(f'\nTest Accuracy: {np.mean(accuracy_list):.5f}')
+        mean_accuracy = np.mean(accuracy_list)
+        print(f'\nTest Accuracy: {mean_accuracy:.5f}')
+        return mean_accuracy
+
+    def evaluate_unlabeled(self, unlabeled_subset: Subset) -> tensor:
+        """
+        Returns softmax of the prediction
+        :param unlabeled_subset: Subset containing unlabeled data
+        :return: softmax outputs
+        """
+        unlabeled_loader = DataLoader(unlabeled_subset, batch_size=len(unlabeled_subset.dataset))
+
+        # Specify that the model will be evaluated
+        self.model.eval()
+
+        # Deactivate the autograd engine
+        with torch.no_grad():
+
+            # Send images to the device
+            images, _ = next(iter(unlabeled_loader))
+            images = images.to(self.device)
+
+            # Perform a forward pass
+            outputs = self.model.forward(images)
+
+        return softmax(outputs, dim=1)
 
     @staticmethod
     def get_accuracy(outputs: torch.Tensor, labels: torch.Tensor) -> float:
@@ -204,4 +246,4 @@ class TrainValidTestManager:
         :param labels: torch.Tensor, ground truth labels classes
         :return: float, accuracy of the predicted outputs vs the ground truth labels
         """
-        return (outputs.argmax(dim=1) == labels).sum().item() / labels.size(0)
+        return (outputs.argmax(dim=1) == labels).sum().item() / labels.shape[0]
