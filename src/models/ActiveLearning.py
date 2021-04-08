@@ -4,9 +4,9 @@ from src.data.DatasetManager import DatasetManager
 from src.data.DataLoaderManager import DataLoaderManager
 from torch.utils.data import Subset
 from src.visualization.VisualizationManager import VisualizationManager
-import shutil
 import json
 import os
+import time
 
 
 class ActiveLearner:
@@ -51,7 +51,7 @@ class ActiveLearner:
         self.epochs = epochs
         self.goal = accuracy_goal
         self.threshold = improvement_threshold
-        self.experiment_name = experiment_name
+        self.experiment_name = experiment_name + time.strftime("_%Y-%m-%d_%H-%M-%S")
 
         # We initialize attributes to keep track of active learning loops
         self.loop_progress = []
@@ -79,8 +79,8 @@ class ActiveLearner:
     def save_all_history(self) -> None:
 
         # We create a directory for the experiment (or overwrite it if it exists)
-        if os.path.exists(self.experiment_name):
-            shutil.rmtree(self.experiment_name)
+        # if os.path.exists(self.experiment_name):
+        #     shutil.rmtree(self.experiment_name)
         os.mkdir(self.experiment_name)
 
         # We add training loss, valid loss, training accuracy and test accuracy to the dictionary
