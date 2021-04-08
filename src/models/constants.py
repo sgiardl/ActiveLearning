@@ -1,6 +1,6 @@
 """
 File:
-    data/constants.py
+    models/constants.py
 
 Authors:
     - Abir Riahi
