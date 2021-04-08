@@ -35,6 +35,7 @@ class TrainValidTestManager:
         # Extract the training, validation and testing data loaders
         self.data_loader_train = data_loader_manager.data_loader_train
         self.data_loader_valid_1 = data_loader_manager.data_loader_valid_1
+        self.data_loader_valid_2 = data_loader_manager.data_loader_valid_2
         self.data_loader_test = data_loader_manager.data_loader_test
 
         # Save the file name
@@ -179,10 +180,12 @@ class TrainValidTestManager:
         self.results['Validation Loss'].append(mean_loss)
         self.results['Validation Accuracy'].append(mean_accuracy)
 
-    def test_model(self) -> float:
+    def test_model(self, final_eval: bool = False) -> float:
         """
         Method to test the model saved in the self.model class attribute.
 
+        :param final_eval: bool indicating we are evaluating the model on the final test set
+                           after active learning is done
         :return: None
         """
         # Specify that the model will be evaluated
@@ -191,9 +194,12 @@ class TrainValidTestManager:
         # Initialize empty accuracy list
         accuracy_list = []
 
+        # We select the good loader
+        loader = self.data_loader_test if final_eval else self.data_loader_valid_2
+
         # Deactivate the autograd engine
         with torch.no_grad():
-            for i, (images, labels) in enumerate(self.data_loader_test):
+            for i, (images, labels) in enumerate(loader):
                 # Send images and labels to the device
                 images, labels = images.to(self.device), labels.to(self.device)
 
