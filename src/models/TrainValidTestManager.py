@@ -1,6 +1,16 @@
 """
-This file stores all functions related to model training.
+File:
+    models/TrainValidTestManager.py
+
+Authors:
+    - Abir Riahi
+    - Nicolas Raymond
+    - Simon Giard-Leroux
+
+Description:
+    Defines the TrainValidTestManager class.
 """
+
 import os
 import numpy as np
 import torch
@@ -18,15 +28,16 @@ MODELS = [RESNET34, SQUEEZE_NET_1_1]
 
 
 class TrainValidTestManager:
+    """
+    Training, validation and testing manager.
+    """
     def __init__(self, data_loader_manager: DataLoaderManager,
                  file_name: Optional[str],
                  model_name: str,
                  learning_rate: float,
                  weight_decay: float,
-                 pretrained: bool = False):
+                 pretrained: bool = False) -> None:
         """
-        Training, validation and testing manager.
-
         :param data_loader_manager: DatasetManager, class with each dataset and dataloader
         :param file_name: str, file name with which to save the trained model
         :param model_name: str, name of the model (RESNET34 or SQUEEZE_NET_1_1)
@@ -226,8 +237,9 @@ class TrainValidTestManager:
     def evaluate_unlabeled(self, unlabeled_subset: Subset) -> tensor:
         """
         Returns softmax of the prediction
+
         :param unlabeled_subset: Subset containing unlabeled data
-        :return: softmax outputs
+        :return: tensor, softmax outputs
         """
         # We initialize a dataloader and an empty list of outputs
         unlabeled_loader = DataLoader(unlabeled_subset, batch_size=self.batch_size*2)
