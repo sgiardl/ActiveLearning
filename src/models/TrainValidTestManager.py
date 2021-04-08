@@ -9,6 +9,7 @@ from torch import tensor
 from torch.nn.functional import softmax
 from src.data.DataLoaderManager import DataLoaderManager
 from tqdm import tqdm
+from typing import Optional
 import torchvision.models as models
 import torch.nn as nn
 from .constants import *
@@ -18,7 +19,7 @@ MODELS = [RESNET34, SQUEEZE_NET_1_1]
 
 class TrainValidTestManager:
     def __init__(self, data_loader_manager: DataLoaderManager,
-                 file_name: str,
+                 file_name: Optional[str],
                  model_name: str,
                  learning_rate: float,
                  pretrained: bool = False):
