@@ -43,8 +43,7 @@ class ActiveLearner:
         self.dataset_manager = dataset_manager
 
         # We initialize TrainValidTestManager
-        self.training_manager = TrainValidTestManager(self.loader_manager, f"{experiment_name}_checkpoint",
-                                                      model, lr, pretrained)
+        self.training_manager = TrainValidTestManager(self.loader_manager, None, model, lr, pretrained)
 
         # We initialize important attributes to lead active learning
         self.n_new = n_new
