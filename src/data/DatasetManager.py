@@ -1,5 +1,6 @@
 import numpy as np
 import os
+from copy import deepcopy
 import torchvision.datasets as datasets
 from torch.utils.data import Subset
 from sklearn.model_selection import StratifiedShuffleSplit
@@ -13,7 +14,8 @@ DATASETS = [CIFAR10, EMNIST]
 class DatasetManager:
     def __init__(self, dataset_name: str,
                  valid_size_1: float,
-                 valid_size_2: float) -> None:
+                 valid_size_2: float,
+                 data_aug: bool = False) -> None:
         """
         Dataset Manager class, handles the creation of the training, validation and testing datasets.
 
@@ -22,14 +24,17 @@ class DatasetManager:
         :param valid_size_2: float, size of validation subset 2 as a fraction of the training set
         """
         dataset_train = self.get_dataset(name=dataset_name, root=f"{os.getcwd()}/data/raw",
-                                         composed_transforms=self.get_transforms(), train=True)
+                                         composed_transforms=self.get_base_transforms(), train=True)
 
         self.dataset_test = self.get_dataset(name=dataset_name, root=f"{os.getcwd()}/data/raw",
-                                             composed_transforms=self.get_transforms(), train=False)
+                                             composed_transforms=self.get_base_transforms(), train=False)
 
         self.dataset_train, self.dataset_valid_1, self.dataset_valid_2 = self.split_dataset(dataset_train,
                                                                                             valid_size_1,
                                                                                             valid_size_2)
+        if data_aug:
+            self.dataset_train.dataset = deepcopy(self.dataset_train.dataset)
+            self.dataset_train.dataset.transform = self.get_augment_transforms()
 
     @staticmethod
     def get_dataset(name: str, root: str, composed_transforms: transforms.Compose = None,
@@ -86,7 +91,7 @@ class DatasetManager:
         return Subset(dataset, index_1), Subset(dataset, index_2), Subset(dataset, index_3)
 
     @staticmethod
-    def get_transforms() -> transforms.Compose:
+    def get_base_transforms() -> transforms.Compose:
         """
         Get transforms to apply to the data.
 
@@ -97,6 +102,31 @@ class DatasetManager:
             # Convert images to RGB (3-channels) since models used expect 3 channels as input.
             # Needed for 1 channel datasets, such as EMNIST.
             transforms.Lambda(lambda image: image.convert('RGB')),
+
+            # Convert images to pytorch tensors
+            transforms.ToTensor()
+        ]
+
+        return transforms.Compose(transforms_list)
+
+    @staticmethod
+    def get_augment_transforms() -> transforms.Compose:
+        """
+        Get transforms to apply to the train data if there is data augmentation.
+
+        :return: Composed transforms
+                 Type : torchvision.transforms.transforms.Compose
+        """
+        transforms_list = [
+            # Convert images to RGB (3-channels) since models used expect 3 channels as input.
+            # Needed for 1 channel datasets, such as EMNIST.
+            transforms.Lambda(lambda image: image.convert('RGB')),
+
+            # Add few augmentation transforms
+            transforms.RandomRotation(15),
+            transforms.ColorJitter(contrast=0.1,
+                                   hue=0.1),
+            transforms.RandomHorizontalFlip(p=0.5),
 
             # Convert images to pytorch tensors
             transforms.ToTensor()

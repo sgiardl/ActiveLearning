@@ -31,9 +31,10 @@ if __name__ == '__main__':
     main()
 
     # Active learning test
-    dataset_manager = DatasetManager(CIFAR10, valid_size_1=0.15, valid_size_2=0.15)
-    active_learner = ActiveLearner(SQUEEZE_NET_1_1, dataset_manager, n_start=500, n_new=100, epochs=10,
+
+    active_learner = ActiveLearner(SQUEEZE_NET_1_1, CIFAR10, n_start=100, n_new=100, epochs=50,
                                    query_strategy='least_confident', experiment_name="test",
-                                   batch_size=50, lr=0.0001, weight_decay=0.01, pretrained=False)
-    active_learner(n_rounds=10)
+                                   batch_size=50, lr=0.0001, weight_decay=0,
+                                   pretrained=False, data_aug=False)
+    active_learner(n_rounds=3)
 
