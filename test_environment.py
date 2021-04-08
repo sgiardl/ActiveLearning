@@ -34,6 +34,6 @@ if __name__ == '__main__':
     dataset_manager = DatasetManager(CIFAR10, valid_size_1=0.15, valid_size_2=0.15)
     active_learner = ActiveLearner(SQUEEZE_NET_1_1, dataset_manager, n_start=500, n_new=100, epochs=10,
                                    query_strategy='least_confident', experiment_name="test",
-                                   batch_size=50, lr=0.0001, pretrained=False)
+                                   batch_size=50, lr=0.0001, weight_decay=0.01, pretrained=False)
     active_learner(n_rounds=10)
 

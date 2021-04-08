@@ -22,6 +22,7 @@ class TrainValidTestManager:
                  file_name: Optional[str],
                  model_name: str,
                  learning_rate: float,
+                 weight_decay: float,
                  pretrained: bool = False):
         """
         Training, validation and testing manager.
@@ -30,6 +31,7 @@ class TrainValidTestManager:
         :param file_name: str, file name with which to save the trained model
         :param model_name: str, name of the model (RESNET34 or SQUEEZE_NET_1_1)
         :param learning_rate: float, learning rate for the Adam optimizer
+        :param weight_decay: L2 penalty added to the loss
         :param pretrained: bool, indicates if the model should be pretrained on ImageNet
         """
         # Flag to enable the inbuilt cudnn auto-tuner
@@ -65,7 +67,7 @@ class TrainValidTestManager:
         params = [p for p in self.model.parameters() if p.requires_grad]
 
         # Define Adam optimizer
-        self.optimizer = torch.optim.Adam(params, lr=learning_rate)
+        self.optimizer = torch.optim.Adam(params, lr=learning_rate, weight_decay=weight_decay)
 
         # Send the model to the device
         self.model.to(self.device)

@@ -11,9 +11,9 @@ import time
 
 class ActiveLearner:
     def __init__(self, model: str, dataset_manager: DatasetManager, n_start: int, n_new: int, epochs: int,
-                 accuracy_goal: float, improvement_threshold: float, query_strategy: str, experiment_name: str,
+                 query_strategy: str, experiment_name: str,
                  batch_size: int = 50, shuffle: bool = False, num_workers: int = 1,
-                 lr: float = 0.005, pretrained: bool = False):
+                 lr: float = 0.005, weight_decay: float = 0, pretrained: bool = False):
 
         """
         Object in charge of pool-based active learning
@@ -23,8 +23,6 @@ class ActiveLearner:
         :param n_start: The number of items that must be randomly labeled in each class by the Expert
         :param n_new: The number of new items that must be labeled within each active learning loop
         :param epochs: Number of training epochs in each active learning loop
-        :param accuracy_goal: Accuracy that we want to achieve before we stop active learning
-        :param improvement_threshold: Accuracy improvement require to continue active learning loops
         :param query_strategy: Query strategy of the expert
         :param experiment_name: Name of the active learning experiment
         :param batch_size: Batch size of dataloaders storing train, valid and test set
@@ -33,7 +31,6 @@ class ActiveLearner:
         :param lr: Learning rate of the model during training
         :param pretrained: Bool indicating if the model used must be pretrained on ImageNet
         """
-        assert improvement_threshold > 0, "Threshold must be greater than 0"
 
         # We first initialize an expert
         self.expert = Expert(dataset_manager.dataset_train, n_start, query_strategy)
@@ -43,13 +40,11 @@ class ActiveLearner:
         self.dataset_manager = dataset_manager
 
         # We initialize TrainValidTestManager
-        self.training_manager = TrainValidTestManager(self.loader_manager, None, model, lr, pretrained)
+        self.training_manager = TrainValidTestManager(self.loader_manager, None, model, lr, weight_decay, pretrained)
 
         # We initialize important attributes to lead active learning
         self.n_new = n_new
         self.epochs = epochs
-        self.goal = accuracy_goal
-        self.threshold = improvement_threshold
         self.experiment_name = experiment_name + time.strftime("_%Y-%m-%d_%H-%M-%S")
 
         # We initialize attributes to keep track of active learning loops
@@ -103,7 +98,12 @@ class ActiveLearner:
         self.visualization_manager.show_loss_acc_chart(self.training_manager.results,
                                                        save_path=os.path.join(self.experiment_name, "loss_acc_prog"))
 
-    def __call__(self):
+    def __call__(self, n_rounds):
+        """
+        Executes the active learning loops
+
+        :param n_rounds: Number of active learning rounds
+        """
 
         print(f"Unlabeled items : {len(self.loader_manager.unlabeled_idx)}")
         print("Active Learning Started")
@@ -111,7 +111,6 @@ class ActiveLearner:
         while True:
 
             # We update a string that will be used for multiple prints
-            i += 1
             loop_reference = f"Active Loop #{i}"
 
             # We train the model on labeled image in the training set
@@ -128,7 +127,7 @@ class ActiveLearner:
             # We look if stopping conditions are reached
             accuracy_diff = accuracy - self.last_accuracy
             print(f"{loop_reference} - Accuracy Difference {round(accuracy_diff,4)}")
-            if accuracy_diff < self.threshold or accuracy >= self.goal:
+            if i == n_rounds:
                 print("Active learning stop - Stopping criteria reached")
                 self.save_all_history()
                 break
@@ -148,6 +147,7 @@ class ActiveLearner:
 
             # We update internal attributes
             self.update_labeled_items()
+            i += 1
 
             print(f"{loop_reference} - Unlabeled items : {len(self.loader_manager.unlabeled_idx)}\n")
 
