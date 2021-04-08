@@ -8,7 +8,6 @@ from torch.utils.data import Subset, Dataset, DataLoader
 from torch import tensor
 from torch.nn.functional import softmax
 from src.data.DataLoaderManager import DataLoaderManager
-import matplotlib.pyplot as plt
 from .model import load_zoo_models
 from tqdm import tqdm
 from typing import Sequence, Union
@@ -35,7 +34,8 @@ class TrainValidTestManager:
 
         # Extract the training, validation and testing data loaders
         self.data_loader_train = data_loader_manager.data_loader_train
-        self.data_loader_valid = data_loader_manager.data_loader_valid
+        self.data_loader_valid_1 = data_loader_manager.data_loader_valid_1
+        self.data_loader_valid_2 = data_loader_manager.data_loader_valid_2
         self.data_loader_test = data_loader_manager.data_loader_test
 
         # Save the file name
@@ -65,13 +65,13 @@ class TrainValidTestManager:
         # Send the model to the device
         self.model.to(self.device)
 
-        # Declare empty training loss and accuracy lists
-        self.train_loss_list = []
-        self.train_accuracy_list = []
-
-        # Declare empty validation loss and accuracy lists
-        self.valid_loss_list = []
-        self.valid_accuracy_list = []
+        # Results dictionary
+        self.results = {
+            'Training Loss': [],
+            'Training Accuracy': [],
+            'Validation Loss': [],
+            'Validation Accuracy': []
+        }
 
     def update_train_loader(self, data_loader_manager: DataLoaderManager) -> None:
         """
@@ -133,30 +133,11 @@ class TrainValidTestManager:
             pbar.reset()
 
             # Save the training loss and accuracy in the object
-            self.train_loss_list.append(np.mean(loss_list_epoch))
-            self.train_accuracy_list.append(np.mean(accuracy_list_epoch))
+            self.results['Training Loss'].append(np.mean(loss_list_epoch))
+            self.results['Training Accuracy'].append(np.mean(accuracy_list_epoch))
 
             # Validate the model
             self.validate_model()
-
-        # Display and format chart of loss and accuracy per epoch
-        fig, (ax1, ax2) = plt.subplots(1, 2)
-
-        ax1.plot(self.train_loss_list, marker='.', label='Training')
-        ax1.plot(self.valid_loss_list, marker='.', label='Validation')
-        ax1.legend(loc='upper right')
-        ax1.set_title('Mean loss per epoch')
-        ax1.set(xlabel='Epoch', ylabel='Mean loss')
-
-        ax2.plot(self.train_accuracy_list, marker='.', label='Training')
-        ax2.plot(self.valid_accuracy_list, marker='.', label='Validation')
-        ax2.legend(loc='upper right')
-        ax2.set_ylim([0, 1])
-        ax2.set_title('Mean accuracy per epoch')
-        ax2.set(xlabel='Epoch', ylabel='Mean accuracy')
-
-        fig.tight_layout()
-        fig.show()
 
         # If file_name is specified, save the trained model
         if self.file_name is not None:
@@ -177,7 +158,7 @@ class TrainValidTestManager:
 
         # Deactivate the autograd engine
         with torch.no_grad():
-            for i, (images, labels) in enumerate(self.data_loader_valid):
+            for i, (images, labels) in enumerate(self.data_loader_valid_1):
                 # Send images and labels to the device
                 images, labels = images.to(self.device), labels.to(self.device)
 
@@ -196,13 +177,15 @@ class TrainValidTestManager:
         mean_accuracy = np.mean(accuracy_list)
 
         # Save mean loss and mean accuracy in the object
-        self.valid_loss_list.append(mean_loss)
-        self.valid_accuracy_list.append(mean_accuracy)
+        self.results['Validation Loss'].append(mean_loss)
+        self.results['Validation Accuracy'].append(mean_accuracy)
 
-    def test_model(self) -> float:
+    def test_model(self, final_eval: bool = False) -> float:
         """
         Method to test the model saved in the self.model class attribute.
 
+        :param final_eval: bool indicating we are evaluating the model on the final test set
+                           after active learning is done
         :return: None
         """
         # Specify that the model will be evaluated
@@ -211,9 +194,12 @@ class TrainValidTestManager:
         # Initialize empty accuracy list
         accuracy_list = []
 
+        # We select the good loader
+        loader = self.data_loader_test if final_eval else self.data_loader_valid_2
+
         # Deactivate the autograd engine
         with torch.no_grad():
-            for i, (images, labels) in enumerate(self.data_loader_test):
+            for i, (images, labels) in enumerate(loader):
                 # Send images and labels to the device
                 images, labels = images.to(self.device), labels.to(self.device)
 
