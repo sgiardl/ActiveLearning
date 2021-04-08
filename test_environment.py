@@ -3,7 +3,6 @@ from src.data.DatasetManager import DatasetManager
 from src.data.constants import *
 from src.models.constants import *
 from src.models.ActiveLearning import ActiveLearner
-from src.visualization.VisualizationManager import VisualizationManager
 
 REQUIRED_PYTHON = "python3"
 

@@ -68,7 +68,7 @@ class VisualizationManager:
         # We save the number of active learning iterations done
         x = range(len(expert.labeled_history[0]))
         for k, history in expert.labeled_history.items():
-            plt.plot(x, history, label=expert.idx_to_class[k])
+            plt.plot(x, history, marker=self.marker, label=expert.idx_to_class[k])
 
         # We set x-axis steps
         plt.xticks(x)
@@ -76,7 +76,7 @@ class VisualizationManager:
         # We set axis labels and legend
         plt.ylabel('Number of labeled images')
         plt.xlabel('Active learning iterations')
-        plt.legend(loc=self.legend_loc)
+        plt.legend()
 
         # We save it
         if save_path is not None:
