@@ -1,5 +1,17 @@
+"""
+File:
+    test_environment.py
+
+Authors:
+    - Abir Riahi
+    - Nicolas Raymond
+    - Simon Giard-Leroux
+
+Description:
+    Test environment to test the active learning loop.
+"""
+
 import sys
-from src.data.DatasetManager import DatasetManager
 from src.data.constants import *
 from src.models.constants import *
 from src.models.ActiveLearning import ActiveLearner
@@ -26,15 +38,12 @@ def main():
 
 
 if __name__ == '__main__':
-
     # Development tests
     main()
 
     # Active learning test
-
     active_learner = ActiveLearner(SQUEEZE_NET_1_1, CIFAR10, n_start=100, n_new=100, epochs=50,
                                    query_strategy='least_confident', experiment_name="test",
                                    batch_size=50, lr=0.0001, weight_decay=0,
                                    pretrained=False, data_aug=False)
     active_learner(n_rounds=3)
-
