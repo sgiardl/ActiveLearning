@@ -3,6 +3,7 @@ from src.models.TrainValidTestManager import TrainValidTestManager
 from src.data.DatasetManager import DatasetManager
 from src.data.DataLoaderManager import DataLoaderManager
 from torch.utils.data import Subset
+from src.visualization.VisualizationManager import VisualizationManager
 
 
 class ActiveLearner:
@@ -51,6 +52,9 @@ class ActiveLearner:
         self.loop_progress = []
         self.last_accuracy = 0
 
+        # We initialize a visualization manager
+        self.visualization_manager = VisualizationManager()
+
     def update_labeled_items(self):
         """
         Updates DataLoaderManager and TrainValidTestManager
@@ -64,7 +68,7 @@ class ActiveLearner:
 
     def __call__(self):
 
-        print(f"Unlabled items : {len(self.loader_manager.unlabeled_idx)}")
+        print(f"Unlabeled items : {len(self.loader_manager.unlabeled_idx)}")
         print("Active Learning Started")
         i = 0
         while True:
@@ -88,7 +92,7 @@ class ActiveLearner:
             print(f"{loop_reference} - Accuracy Difference {round(accuracy_diff,4)}")
             if accuracy_diff < self.threshold or accuracy >= self.goal:
                 print("Active learning stop - Stopping criteria reached")
-                self.expert.show_labels_history(show=True)
+                self.visualization_manager.show_labels_history(self.expert, show=True)
                 break
 
             # We update last accuracy attribute

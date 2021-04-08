@@ -1,10 +1,9 @@
 import sys
 from src.data.DatasetManager import DatasetManager
-from src.data.DataLoaderManager import DataLoaderManager
 from src.data.constants import *
 from src.models.constants import *
-from src.models.TrainValidTestManager import TrainValidTestManager
 from src.models.ActiveLearning import ActiveLearner
+from src.visualization.VisualizationManager import VisualizationManager
 
 REQUIRED_PYTHON = "python3"
 
@@ -39,4 +38,3 @@ if __name__ == '__main__':
                                    saving_file_name="test", batch_size=50, lr=0.001, pretrained=False)
     active_learner()
 
-    # show charts

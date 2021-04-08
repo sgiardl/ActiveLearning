@@ -37,8 +37,11 @@ class DataLoaderManager:
         self.data_loader_train = DataLoader(self.dataset_train, batch_size=batch_size, shuffle=shuffle,
                                             num_workers=num_workers, sampler=expert.sampler)
 
-        self.data_loader_valid = DataLoader(dataset_manager.dataset_valid, batch_size=batch_size,
-                                            shuffle=shuffle, num_workers=num_workers)
+        self.data_loader_valid_1 = DataLoader(dataset_manager.dataset_valid_1, batch_size=batch_size, shuffle=shuffle,
+                                              num_workers=num_workers)
+
+        self.data_loader_valid_2 = DataLoader(dataset_manager.dataset_valid_2, batch_size=batch_size, shuffle=shuffle,
+                                              num_workers=num_workers)
 
         self.data_loader_test = DataLoader(dataset_manager.dataset_test, batch_size=batch_size,
                                            shuffle=shuffle, num_workers=num_workers)
