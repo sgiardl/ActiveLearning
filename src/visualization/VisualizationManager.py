@@ -43,13 +43,13 @@ class VisualizationManager:
 
         fig.tight_layout()
 
-        # We show the plot
-        if show:
-            plt.show()
-
         # We save it
         if save_path is not None:
             plt.savefig(f"{save_path}.{fig_format}")
+
+        # We show the plot
+        if show:
+            plt.show()
 
     def show_labels_history(self, expert: Expert,
                             show: bool = True, save_path: Union[str, None] = None,
@@ -68,7 +68,7 @@ class VisualizationManager:
         # We save the number of active learning iterations done
         x = range(len(expert.labeled_history[0]))
         for k, history in expert.labeled_history.items():
-            plt.plot(x, history, label=expert.idx2class[k])
+            plt.plot(x, history, label=expert.idx_to_class[k])
 
         # We set x-axis steps
         plt.xticks(x)
@@ -78,13 +78,13 @@ class VisualizationManager:
         plt.xlabel('Active learning iterations')
         plt.legend(loc=self.legend_loc)
 
-        # We show the plot
-        if show:
-            plt.show()
-
         # We save it
         if save_path is not None:
             plt.savefig(f"{save_path}.{fig_format}")
+
+        # We show the plot
+        if show:
+            plt.show()
 
     def show_learning_curve(self, accuracy_dic: dict,
                             show: bool = True, save_path: Union[str, None] = None,
@@ -109,10 +109,10 @@ class VisualizationManager:
         plt.legend(loc='lower right')
         plt.ylim([0, 1])
 
-        # We show the plot
-        if show:
-            plt.show()
-
         # We save it
         if save_path is not None:
             plt.savefig(f"{save_path}.{fig_format}")
+
+        # We show the plot
+        if show:
+            plt.show()
