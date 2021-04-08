@@ -10,16 +10,17 @@ import time
 
 
 class ActiveLearner:
-    def __init__(self, model: str, dataset_manager: DatasetManager, n_start: int, n_new: int, epochs: int,
+    def __init__(self, model: str, dataset: str, n_start: int, n_new: int, epochs: int,
                  query_strategy: str, experiment_name: str,
                  batch_size: int = 50, shuffle: bool = False, num_workers: int = 1,
-                 lr: float = 0.005, weight_decay: float = 0, pretrained: bool = False):
+                 lr: float = 0.005, weight_decay: float = 0, pretrained: bool = False,
+                 valid_size_1: float = 0.20, valid_size_2: float = 0.20, data_aug: bool = False):
 
         """
         Object in charge of pool-based active learning
 
         :param model: Name of the model to train ("ResNet34" or "SqueezeNet11")
-        :param dataset_manager: Object containing the train, valid and test datasets
+        :param dataset: Name of the dataset to learn on ("CIFAR10" or "EMNIST")
         :param n_start: The number of items that must be randomly labeled in each class by the Expert
         :param n_new: The number of new items that must be labeled within each active learning loop
         :param epochs: Number of training epochs in each active learning loop
@@ -30,7 +31,13 @@ class ActiveLearner:
         :param num_workers: Number of workers used by the dataloaders
         :param lr: Learning rate of the model during training
         :param pretrained: Bool indicating if the model used must be pretrained on ImageNet
+        :param valid_size_1: Portion of train set used as valid 1
+        :param valid_size_2: Portion of train set used as valid 2
+        :param data_aug: Bool indicating if we want data augmentation in the training set
         """
+
+        # We create a temporary manager
+        dataset_manager = DatasetManager(dataset, valid_size_1, valid_size_2, data_aug)
 
         # We first initialize an expert
         self.expert = Expert(dataset_manager.dataset_train, n_start, query_strategy)
@@ -55,9 +62,11 @@ class ActiveLearner:
         self.visualization_manager = VisualizationManager()
 
         # We initialize a dictionary that will contains all data to save in a json file at the end
-        self.history = {'Initialization': {'model': model, 'n_start': n_start, 'n_new': n_new, 'epochs': epochs,
+        self.history = {'Initialization': {'model': model, 'dataset': dataset, 'n_start': n_start, 'n_new': n_new,
+                                           'epochs': epochs, 'valid_size_1': valid_size_1, 'valid_size_2': valid_size_2,
                                            'lr': lr, 'pretrained': pretrained, 'query_strategy:': query_strategy,
-                                           'batch_size': batch_size, 'shuffle': shuffle}}
+                                           'batch_size': batch_size, 'weight_decay': weight_decay,
+                                           'shuffle': shuffle, 'data_aug': data_aug}}
 
     def update_labeled_items(self):
         """
@@ -105,8 +114,13 @@ class ActiveLearner:
         :param n_rounds: Number of active learning rounds
         """
 
+        # We save the number of rounds to the history
+        self.history['Initialization']['n_rounds'] = n_rounds
+
+        # We warn that the active learning is started
         print(f"Unlabeled items : {len(self.loader_manager.unlabeled_idx)}")
-        print("Active Learning Started")
+        print("Active Learning Started\n")
+
         i = 0
         while True:
 
