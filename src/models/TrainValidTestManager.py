@@ -37,6 +37,7 @@ class TrainValidTestManager:
         self.data_loader_valid_1 = data_loader_manager.data_loader_valid_1
         self.data_loader_valid_2 = data_loader_manager.data_loader_valid_2
         self.data_loader_test = data_loader_manager.data_loader_test
+        self.batch_size = data_loader_manager.batch_size
 
         # Save the file name
         self.file_name = file_name
@@ -139,6 +140,9 @@ class TrainValidTestManager:
             # Validate the model
             self.validate_model()
 
+        # We close the tqdm bar
+        pbar.close()
+
         # If file_name is specified, save the trained model
         if self.file_name is not None:
             torch.save(self.model.state_dict(), f'{os.getcwd()}/models/{self.file_name}')
@@ -211,7 +215,6 @@ class TrainValidTestManager:
 
         # Print mean test accuracy over all batches
         mean_accuracy = np.mean(accuracy_list)
-        print(f'\nTest Accuracy: {mean_accuracy:.5f}')
         return mean_accuracy
 
     def evaluate_unlabeled(self, unlabeled_subset: Subset) -> tensor:
@@ -220,21 +223,24 @@ class TrainValidTestManager:
         :param unlabeled_subset: Subset containing unlabeled data
         :return: softmax outputs
         """
-        unlabeled_loader = DataLoader(unlabeled_subset, batch_size=len(unlabeled_subset.dataset))
+        # We initialize a dataloader and an empty list of outputs
+        unlabeled_loader = DataLoader(unlabeled_subset, batch_size=self.batch_size*2)
+        outputs = []
 
         # Specify that the model will be evaluated
         self.model.eval()
 
         # Deactivate the autograd engine
         with torch.no_grad():
+            for images, _ in unlabeled_loader:
 
-            # Send images to the device
-            images, _ = next(iter(unlabeled_loader))
-            images = images.to(self.device)
+                # Send images to the device
+                images = images.to(self.device)
 
-            # Perform a forward pass
-            outputs = self.model.forward(images)
+                # Perform a forward pass
+                outputs.append(self.model.forward(images))
 
+        outputs = torch.cat(outputs)
         return softmax(outputs, dim=1)
 
     @staticmethod
