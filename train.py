@@ -3,7 +3,10 @@ from src.models.ActiveLearning import ActiveLearner
 
 
 def argument_parser():
-    parser = argparse.ArgumentParser(usage='\n python3 train.py [model] [dataset] [hyper_parameters]')
+    parser = argparse.ArgumentParser(usage='\n python3 train.py [model] [dataset] [hyper_parameters]',
+                                     description="This program enables user to train different "
+                                                 "models of classification using passive or "
+                                                 "active learning.")
     parser.add_argument('--model', type=str, default='SqueezeNet11',
                         choices=['SqueezeNet11', 'ResNet34'],
                         help='Name of the model to train '
