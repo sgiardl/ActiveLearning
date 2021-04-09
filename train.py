@@ -1,7 +1,8 @@
 import argparse
 import sys
 from src.models.ActiveLearning import ActiveLearner
-
+from src.models.constants import RESNET18, SQUEEZE_NET_1_1
+from src.data.constants import CIFAR10, EMNIST
 REQUIRED_PYTHON = "python3"
 
 
@@ -13,14 +14,12 @@ def argument_parser():
                                      description="This program enables user to train different "
                                                  "models of classification using passive or "
                                                  "active learning.")
-    parser.add_argument('--model', type=str, default='SqueezeNet11',
-                        choices=['SqueezeNet11', 'ResNet34'],
-                        help='Name of the model to train '
-                             '("ResNet34" or "SqueezeNet11")')
-    parser.add_argument('--dataset', type=str, default='CIFAR10',
-                        choices=['CIFAR10', 'EMNIST'],
-                        help='Name of the dataset to learn on '
-                             '("CIFAR10" or "EMNIST")')
+    parser.add_argument('--model', type=str, default=SQUEEZE_NET_1_1,
+                        choices=[SQUEEZE_NET_1_1, RESNET18],
+                        help=f"Name of the model to train ({SQUEEZE_NET_1_1} or {RESNET18})")
+    parser.add_argument('--dataset', type=str, default=CIFAR10,
+                        choices=[CIFAR10, EMNIST],
+                        help=f"Name of the dataset to learn on ''({CIFAR10} or {EMNIST})")
     parser.add_argument('--n_start', type=int, default=100,
                         help='The number of items that must be randomly '
                              'labeled in each class by the Expert')
