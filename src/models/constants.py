@@ -12,7 +12,7 @@ Description:
 """
 
 # MODEL NAMES
-RESNET34 = "ResNet34"
+RESNET18 = "ResNet18"
 SQUEEZE_NET_1_1 = "SqueezeNet11"
 
 # TRAINING PARAMETERS
