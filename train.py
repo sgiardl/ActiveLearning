@@ -50,34 +50,12 @@ def argument_parser():
                              'training set')
     parser.add_argument('--n_rounds', type=int, default=3,
                         help='Number of active learning rounds')
+    parser.add_argument('--patience', type=int, default=4,
+                        help='Maximal number of consecutive rounds without accuracy improvement')
     return parser.parse_args()
 
 
-def test_development_environment():
-    """
-    This function tests the development environment
-    """
-    system_major = sys.version_info.major
-    if REQUIRED_PYTHON == "python":
-        required_major = 2
-    elif REQUIRED_PYTHON == "python3":
-        required_major = 3
-    else:
-        raise ValueError("Unrecognized python interpreter: {}".format(
-            REQUIRED_PYTHON))
-
-    if system_major != required_major:
-        raise TypeError(
-            "This project requires Python {}. Found: Python {}".format(
-                required_major, sys.version))
-    else:
-        print(">>> Development environment passes all tests!")
-
-
 if __name__ == "__main__":
-
-    # Test the development environment
-    test_development_environment()
 
     args = argument_parser()
 
@@ -95,6 +73,7 @@ if __name__ == "__main__":
     pretrained = args.pretrained
     data_aug = args.data_aug
     n_rounds = args.n_rounds
+    patience = args.patience
 
     if pretrained:
         pretrained = True
@@ -106,6 +85,6 @@ if __name__ == "__main__":
     active_learner = ActiveLearner(model, dataset, n_start=n_start, n_new=n_new, epochs=epochs,
                                    query_strategy=query_strategy, experiment_name=query_strategy,
                                    batch_size=batch_size, lr=lr, weight_decay=weight_decay,
-                                   pretrained=pretrained, data_aug=data_aug)
+                                   pretrained=pretrained, data_aug=data_aug, patience=patience)
 
     active_learner(n_rounds=n_rounds)
