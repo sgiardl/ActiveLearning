@@ -106,11 +106,12 @@ python3 experiment.py --model='SqueezeNet11' --dataset='CIFAR10' --epochs=50
     │
     └── test_environment.py      <- Test environment to test the active learning loop.
 
---------
-
-<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. </small></p>
-
 ## Authors
 * Abir Riahi
 * Nicolas Raymond
 * Simon Giard-Leroux
+
+--------
+
+<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. </small></p>
+
