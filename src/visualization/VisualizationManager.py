@@ -1,12 +1,28 @@
+"""
+File:
+    visualization/VisualizationManager.py
+
+Authors:
+    - Abir Riahi
+    - Nicolas Raymond
+    - Simon Giard-Leroux
+
+Description:
+    Defines the VisualizationManager class.
+"""
+
 import matplotlib.pyplot as plt
 from typing import Union
 from src.models.Expert import Expert
 
 
 class VisualizationManager:
+    """
+    Visualization manager to generate charts.
+    """
     def __init__(self) -> None:
         """
-        Visualization manager to generate charts.
+        Declare some member attributes for chart formatting.
         """
         self.legend_loc = 'upper right'
         self.marker = '.'
@@ -26,14 +42,17 @@ class VisualizationManager:
 
         :return: None
         """
+        # Declare figure and axes
         fig, (ax1, ax2) = plt.subplots(1, 2)
 
+        # Loss chart
         ax1.plot(results['Training Loss'], marker=self.marker, label=self.train_label)
         ax1.plot(results['Validation Loss'], marker=self.marker, label=self.valid_label)
         ax1.legend(loc=self.legend_loc)
         ax1.set_title('Mean loss per epoch')
         ax1.set(xlabel='Epoch', ylabel='Mean loss')
 
+        # Accuracy chart
         ax2.plot(results['Training Accuracy'], marker=self.marker, label=self.train_label)
         ax2.plot(results['Validation Accuracy'], marker=self.marker, label=self.valid_label)
         ax2.legend(loc=self.legend_loc)
@@ -41,6 +60,7 @@ class VisualizationManager:
         ax2.set_title('Mean accuracy per epoch')
         ax2.set(xlabel='Epoch', ylabel='Mean accuracy')
 
+        # Apply a tight layout so axes titles do not overlap with charts
         fig.tight_layout()
 
         # We save it

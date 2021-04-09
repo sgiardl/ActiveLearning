@@ -1,7 +1,14 @@
 """
-This file stores the Expert class.
-It simulates an expert who labels item from the dataset.
-The indices are then fed to a Pytorch SubsetRandomSampler used by the training DataLoader
+File:
+    models/Expert.py
+
+Authors:
+    - Abir Riahi
+    - Nicolas Raymond
+    - Simon Giard-Leroux
+
+Description:
+    Defines the Expert class.
 """
 
 from numpy.random import choice
@@ -14,7 +21,10 @@ PRIORITISATION_CRITERION = ['random_sampling', 'least_confident', 'margin_sampli
 
 
 class Expert:
-    def __init__(self, dataset: Dataset, n: int, query_strategy: str = 'random_sampling'):
+    """
+    Expert class, to simulate the manual labelling of unlabeled data by an expert.
+    """
+    def __init__(self, dataset: Dataset, n: int, query_strategy: str = 'random_sampling') -> None:
         """
         Select randomly n items from each class of the training dataset.
         These will be the first labeled items from our expert.
@@ -125,7 +135,6 @@ class Expert:
         :param dataset: PyTorch dataset
         :return: dict
         """
-
         # We initialize a count of dataset class count
         if type(dataset) == Subset:
             count_dict = {k: 0 for k, v in dataset.dataset.class_to_idx.items()}
@@ -159,11 +168,11 @@ class Expert:
         # We turn the indexes list into a tensor
         self.labeled_idx = tensor(self.labeled_idx)
 
-    def add_labels(self, unlabeled_data_idx, softmax_outputs: tensor, n: int, dataset: Dataset) -> None:
+    def add_labels(self, unlabeled_data_idx: list, softmax_outputs: tensor, n: int, dataset: Dataset) -> None:
         """
         Add labels based on prioritisation criterion used
 
-        :param unlabeled_data_idx: Dataloader with a single batch with all unlabeled images
+        :param unlabeled_data_idx: List of unlabeled data indices
         :param softmax_outputs: Softmax outputs of our model of the unlabeled data
         :param n: Number of items to label
         :param dataset: PyTorch dataset
@@ -185,6 +194,7 @@ class Expert:
     def update_labels_history(self, dataset: Dataset, prioritisation_indices) -> None:
         """
         Update labeled history
+
         :param dataset: PyTorch dataset
         :param prioritisation_indices: Dataloader with a single batch with all unlabeled images
         """

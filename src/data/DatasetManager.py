@@ -1,3 +1,16 @@
+"""
+File:
+    data/DatasetManager.py
+
+Authors:
+    - Abir Riahi
+    - Nicolas Raymond
+    - Simon Giard-Leroux
+
+Description:
+    Defines the DatasetManager class.
+"""
+
 import numpy as np
 import os
 from copy import deepcopy
@@ -12,16 +25,18 @@ DATASETS = [CIFAR10, EMNIST]
 
 
 class DatasetManager:
+    """
+    Dataset Manager class, handles the creation of the training, validation and testing datasets.
+    """
     def __init__(self, dataset_name: str,
                  valid_size_1: float,
                  valid_size_2: float,
                  data_aug: bool = False) -> None:
         """
-        Dataset Manager class, handles the creation of the training, validation and testing datasets.
-
         :param dataset_name: string, name of the dataset to load
         :param valid_size_1: float, size of validation subset 1 as a fraction of the training set
         :param valid_size_2: float, size of validation subset 2 as a fraction of the training set
+        :param data_aug: bool, if true, data augmentation will be used, if false it will not be used
         """
         dataset_train = self.get_dataset(name=dataset_name, root=f"{os.getcwd()}/data/raw",
                                          composed_transforms=self.get_base_transforms(), train=True)
@@ -64,7 +79,7 @@ class DatasetManager:
     @staticmethod
     def split_dataset(dataset: datasets, split_size_1: float, split_size_2: float) -> (Subset, Subset, Subset):
         """
-        Splits a dataset into two subsets.
+        Splits a dataset into three subsets.
 
         :param dataset: torchvision.datasets, input PyTorch dataset object to split
         :param split_size_1: float, proportion of dataset to include in subset_2.
@@ -93,7 +108,7 @@ class DatasetManager:
     @staticmethod
     def get_base_transforms() -> transforms.Compose:
         """
-        Get transforms to apply to the data.
+        Get base transforms to apply to the data (with no data augmentation).
 
         :return: Composed transforms
                  Type : torchvision.transforms.transforms.Compose

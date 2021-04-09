@@ -1,9 +1,25 @@
+"""
+File:
+    data/DataLoaderManager.py
+
+Authors:
+    - Abir Riahi
+    - Nicolas Raymond
+    - Simon Giard-Leroux
+
+Description:
+    Defines the DataLoaderManager class.
+"""
+
 from src.models.Expert import Expert
 from src.data.DatasetManager import DatasetManager
 from torch.utils.data import DataLoader
 
 
 class DataLoaderManager:
+    """
+    Data Loader Manager class, handles the creation of the training, validation and testing data loaders.
+    """
     def __init__(self,
                  dataset_manager: DatasetManager,
                  expert: Expert,
@@ -11,8 +27,6 @@ class DataLoaderManager:
                  shuffle: bool = False,
                  num_workers: int = 1) -> None:
         """
-        Data Loader Manager class, handles the creation of the training, validation and testing data loaders.
-
         :param dataset_manager: DatasetManager, dataset manager containing the
                                 training, validation and testing datasets
         :param expert: expert
@@ -49,12 +63,19 @@ class DataLoaderManager:
     def __update_unlabeled_idx(self, expert: Expert) -> None:
         """
         Updates the unlabeled idx in the training dataset
+
         :param expert: Expert
+        :return: None
         """
         self.unlabeled_idx = [i for i in range(self.train_length) if i not in expert.labeled_idx]
 
     def update(self, expert: Expert) -> None:
+        """
+        Updates the expert in the dataloader.
 
+        :param expert: Expert
+        :return: None
+        """
         # We update unlabeled indices
         self.__update_unlabeled_idx(expert)
 
