@@ -24,7 +24,7 @@ import torchvision.models as models
 import torch.nn as nn
 from .constants import *
 
-MODELS = [RESNET34, SQUEEZE_NET_1_1]
+MODELS = [RESNET18, SQUEEZE_NET_1_1]
 
 
 class TrainValidTestManager:
@@ -276,7 +276,7 @@ class TrainValidTestManager:
         """
         assert name in MODELS, f"The name provided must be in {MODELS}"
 
-        if name == RESNET34:
+        if name == RESNET18:
             if pretrained:
                 # If pretrained, an error occur if num_classes != 1000,
                 # we have to initialize and THEN change the last layer
