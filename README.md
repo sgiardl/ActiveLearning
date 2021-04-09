@@ -17,10 +17,11 @@ for the image classification task.
 * EMNIST (62 classes)
 * CIFAR10 (10 classes)
 
-**Active learning query strategies:**
+**Query strategies:**
 * Least Confidence (LC)
 * Margin Sampling
 * Entropy Sampling
+* Random Sampling
 
 ## Installation
 Install dependencies on a python environment
