@@ -1,4 +1,5 @@
 import argparse
+import subprocess
 from src.models.ActiveLearning import ActiveLearner
 
 
@@ -31,9 +32,8 @@ def argument_parser():
                         choices=['random_sampling', 'least_confident', 'margin_sampling',
                                  'entropy_sampling'],
                         help='Query strategy of the expert')
-    parser.add_argument('--experiment_name', type=str, default='least_confident',
-                        choices=['random_sampling', 'least_confident', 'margin_sampling',
-                                 'entropy_sampling'],
+    parser.add_argument('--experiment_name', type=str, default='test',
+                        #choices=[],
                         help='Name of the active learning experiment')
     parser.add_argument('--patience', type=int, default=4,
                         help='Maximal number of consecutive rounds without improvement')
@@ -51,11 +51,18 @@ def argument_parser():
                              'training set')
     parser.add_argument('--n_rounds', type=int, default=3,
                         help='Number of active learning rounds')
-    return parser.parse_args()
+
+    args = parser.parse_args()
+
+    print("The inputs are:")
+    for arg in vars(args):
+        print("{} is {}".format(arg, getattr(args, arg)))
+
+    return args
 
 
-if __name__ == "__main__":
-
+def main():
+    # Get argument_parser
     args = argument_parser()
 
     # Extract parameters values
@@ -82,8 +89,12 @@ if __name__ == "__main__":
 
     # Active learning model
     active_learner = ActiveLearner(model, dataset, n_start=n_start, n_new=n_new, epochs=epochs,
-                                   query_strategy=query_strategy, experiment_name=query_strategy,
+                                   query_strategy=query_strategy, experiment_name=experiment_name,
                                    patience=patience, batch_size=batch_size, lr=lr, weight_decay=weight_decay,
                                    pretrained=pretrained, data_aug=data_aug)
 
     active_learner(n_rounds=n_rounds)
+
+
+if __name__ == "__main__":
+    main()
