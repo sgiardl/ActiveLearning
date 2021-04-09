@@ -27,9 +27,9 @@ class ActiveLearner:
     Object in charge of pool-based active learning.
     """
     def __init__(self, model: str, dataset: str, n_start: int, n_new: int, epochs: int,
-                 query_strategy: str, experiment_name: str, patience: int = 3,
-                 batch_size: int = 50, shuffle: bool = False, num_workers: int = 1,
-                 lr: float = 0.005, weight_decay: float = 0, pretrained: bool = False,
+                 query_strategy: str, experiment_name: str, patience: int = 4,
+                 batch_size: int = 50, shuffle: bool = False, num_workers: int = 8,
+                 lr: float = 0.0001, weight_decay: float = 0, pretrained: bool = False,
                  valid_size_1: float = 0.20, valid_size_2: float = 0.20, data_aug: bool = False) -> None:
         """
         :param model: Name of the model to train ("ResNet34" or "SqueezeNet11")
