@@ -4,13 +4,19 @@ from src.models.ActiveLearning import ActiveLearner
 
 def argument_parser():
     parser = argparse.ArgumentParser(usage='\n python3 train.py [model] [dataset] [hyper_parameters]')
-    parser.add_argument('--model', type=str, default='SqueezeNet11')
-    parser.add_argument('--dataset', type=str, default='CIFAR10')
+    parser.add_argument('--model', type=str, default='SqueezeNet11',
+                        choices=['SqueezeNet11', 'ResNet34'])
+    parser.add_argument('--dataset', type=str, default='CIFAR10',
+                        choices=['CIFAR10', 'EMNIST'])
     parser.add_argument('--n_start', type=int, default=100)
     parser.add_argument('--n_new', type=int, default=100)
     parser.add_argument('--epochs', type=int, default=50)
-    parser.add_argument('--query_strategy', type=str, default='least_confident')
-    parser.add_argument('--experiment_name', type=str, default='test')
+    parser.add_argument('--query_strategy', type=str, default='least_confident',
+                        choices=['random_sampling', 'least_confident', 'margin_sampling',
+                                 'entropy_sampling'])
+    parser.add_argument('--experiment_name', type=str, default='least_confident',
+                        choices=['random_sampling', 'least_confident', 'margin_sampling',
+                                 'entropy_sampling'])
     parser.add_argument('--batch_size', type=int, default=50)
     parser.add_argument('--lr', type=float, default=0.0001)
     parser.add_argument('--weight_decay', type=float, default=0)
