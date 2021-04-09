@@ -50,7 +50,7 @@ def argument_parser():
     return parser.parse_args()
 
 
-def main():
+def test_development_environment():
     system_major = sys.version_info.major
     if REQUIRED_PYTHON == "python":
         required_major = 2
@@ -69,7 +69,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+
+    test_development_environment()
 
     args = argument_parser()
 
