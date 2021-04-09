@@ -12,18 +12,18 @@ $ pip3 install -r requirements.txt
 ## Use **train.py**
 ```
 python3 train.py --model <Name of the model to train> \
-                --dataset <Name of the dataset to learn on> \
-                --n_start <Number of items that must be randomly labeled in each class by the Expert> \
-                --n_new <Number of new items that must be labeled within each active learning loop> \
-                --epochs <Number of training epochs in each active learning loop> \
-                --query_strategy <Query strategy of the expert> \
-                --experiment_name <Name of the active learning experiment> \
-                --batch_size <Batch size of dataloaders storing train, valid and test set> \
-                --lr <Learning rate of the model during training> \
-                --weight_decay <The regularization term> \
-                --pretrained \
-                --data_aug \
-                --n_rounds <Number of active learning rounds>
+                 --dataset <Name of the dataset to learn on> \
+                 --n_start <Number of items that must be randomly labeled in each class by the Expert> \
+                 --n_new <Number of new items that must be labeled within each active learning loop> \
+                 --epochs <Number of training epochs in each active learning loop> \
+                 --query_strategy <Query strategy of the expert> \
+                 --experiment_name <Name of the active learning experiment> \
+                 --batch_size <Batch size of dataloaders storing train, valid and test set> \
+                 --lr <Learning rate of the model during training> \
+                 --weight_decay <The regularization term> \
+                 --pretrained \
+                 --data_aug \
+                 --n_rounds <Number of active learning rounds>
                 
 ```
 
