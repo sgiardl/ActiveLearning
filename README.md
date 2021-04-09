@@ -23,8 +23,13 @@ python3 train.py --model <Name of the model to train> \
                  --weight_decay <The regularization term> \
                  --pretrained \
                  --data_aug \
-                 --n_rounds <Number of active learning rounds>
-                
+                 --n_rounds <Number of active learning rounds>                
+```
+
+## Examples of basic use
+```
+python3 train.py
+python3 train.py --model='SqueezeNet11' --dataset='CIFAR10' --epochs=50
 ```
 
 Project Organization
