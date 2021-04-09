@@ -34,7 +34,7 @@ def argument_parser():
                         choices=['random_sampling', 'least_confident', 'margin_sampling',
                                  'entropy_sampling'],
                         help='Query strategy of the expert')
-    parser.add_argument('--experiment_name', type=str, default='exp',
+    parser.add_argument('--experiment_name', type=str, default='test',
                         help='Name of the active learning experiment')
     parser.add_argument('--batch_size', type=int, default=50,
                         help='Batch size of dataloaders storing train, valid and test set')
@@ -83,7 +83,7 @@ if __name__ == "__main__":
 
     # Active learning model
     active_learner = ActiveLearner(model, dataset, n_start=n_start, n_new=n_new, epochs=epochs,
-                                   query_strategy=query_strategy, experiment_name=query_strategy,
+                                   query_strategy=query_strategy, experiment_name=experiment_name,
                                    batch_size=batch_size, lr=lr, weight_decay=weight_decay,
                                    pretrained=pretrained, data_aug=data_aug, patience=patience)
 
