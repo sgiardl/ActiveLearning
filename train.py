@@ -6,6 +6,9 @@ REQUIRED_PYTHON = "python3"
 
 
 def argument_parser():
+    """
+    This function defines a parser to enable user to easily experiment different models
+    """
     parser = argparse.ArgumentParser(usage='\n python3 train.py [model] [dataset] [hyper_parameters]',
                                      description="This program enables user to train different "
                                                  "models of classification using passive or "
@@ -51,6 +54,9 @@ def argument_parser():
 
 
 def test_development_environment():
+    """
+    This function tests the development environment
+    """
     system_major = sys.version_info.major
     if REQUIRED_PYTHON == "python":
         required_major = 2
@@ -70,10 +76,12 @@ def test_development_environment():
 
 if __name__ == "__main__":
 
+    # Test the development environment
     test_development_environment()
 
     args = argument_parser()
 
+    # Extract parameters values
     model = args.model
     dataset = args.dataset
     n_start = args.n_start
@@ -93,6 +101,7 @@ if __name__ == "__main__":
     if data_aug:
         data_aug = True
 
+    # Active learning model
     active_learner = ActiveLearner(model, dataset, n_start=n_start, n_new=n_new, epochs=epochs,
                                    query_strategy=query_strategy, experiment_name=query_strategy,
                                    batch_size=batch_size, lr=lr, weight_decay=weight_decay,
