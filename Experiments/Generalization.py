@@ -8,11 +8,11 @@ from src.data.constants import CIFAR10, EMNIST
 
 FIXED_SQUEEZENET_PARAM = ['--model', SQUEEZE_NET_1_1, '--dataset', CIFAR10, '--n_start', '100',
                           '--n_new', '10', '--epochs', '25', '--query_strategy', 'least_confident',
-                          '--batch_size', '50', '--lr', '0.0001', '--n_rounds', '20', '--patience', '4']
+                          '--batch_size', '50', '--lr', '0.0001', '--n_rounds', '20', '--patience', '3']
 
 FIXED_RESNET_PARAM = ['--model', RESNET34, '--dataset', EMNIST, '--n_start', '25',
-                      '--n_new', '10', '--epochs', '25', '--query_strategy', 'least_confident',
-                      '--batch_size', '50', '--lr', '0.0001', '--n_rounds', '10', '--patience', '4']
+                      '--n_new', '10', '--epochs', '20', '--query_strategy', 'least_confident',
+                      '--batch_size', '50', '--lr', '0.0001', '--n_rounds', '10', '--patience', '3']
 
 FIXED_CMDS = ['python3', 'train.py']
 
@@ -38,7 +38,7 @@ if __name__ == '__main__':
     # We run experiments
     start = time.time()
     for cmd in cmds:
-        print(cmd)
+        print("\n", cmd, "\n")
         p = sp.Popen(cmd)
         p.wait()
 
