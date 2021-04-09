@@ -1,8 +1,5 @@
 import argparse
-import sys
 from src.models.ActiveLearning import ActiveLearner
-
-REQUIRED_PYTHON = "python3"
 
 
 def argument_parser():
@@ -38,6 +35,8 @@ def argument_parser():
                         choices=['random_sampling', 'least_confident', 'margin_sampling',
                                  'entropy_sampling'],
                         help='Name of the active learning experiment')
+    parser.add_argument('--patience', type=int, default=4,
+                        help='Maximal number of consecutive rounds without improvement')
     parser.add_argument('--batch_size', type=int, default=50,
                         help='Batch size of dataloaders storing train, valid and test set')
     parser.add_argument('--lr', type=float, default=0.0001,
@@ -55,31 +54,7 @@ def argument_parser():
     return parser.parse_args()
 
 
-def test_development_environment():
-    """
-    This function tests the development environment
-    """
-    system_major = sys.version_info.major
-    if REQUIRED_PYTHON == "python":
-        required_major = 2
-    elif REQUIRED_PYTHON == "python3":
-        required_major = 3
-    else:
-        raise ValueError("Unrecognized python interpreter: {}".format(
-            REQUIRED_PYTHON))
-
-    if system_major != required_major:
-        raise TypeError(
-            "This project requires Python {}. Found: Python {}".format(
-                required_major, sys.version))
-    else:
-        print(">>> Development environment passes all tests!")
-
-
 if __name__ == "__main__":
-
-    # Test the development environment
-    test_development_environment()
 
     args = argument_parser()
 
@@ -91,6 +66,7 @@ if __name__ == "__main__":
     epochs = args.epochs
     query_strategy = args.query_strategy
     experiment_name = args.experiment_name
+    patience = args.patience
     batch_size = args.batch_size
     lr = args.lr
     weight_decay = args.weight_decay
@@ -107,7 +83,7 @@ if __name__ == "__main__":
     # Active learning model
     active_learner = ActiveLearner(model, dataset, n_start=n_start, n_new=n_new, epochs=epochs,
                                    query_strategy=query_strategy, experiment_name=query_strategy,
-                                   batch_size=batch_size, lr=lr, weight_decay=weight_decay,
+                                   patience=patience, batch_size=batch_size, lr=lr, weight_decay=weight_decay,
                                    pretrained=pretrained, data_aug=data_aug)
 
     active_learner(n_rounds=n_rounds)

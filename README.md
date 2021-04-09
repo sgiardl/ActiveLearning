@@ -49,6 +49,7 @@ This program enables user to train different models of classification using pass
 * --epochs: Number of training epochs in each active learning loop
 * --query_strategy: Query strategy of the expert
 * --experiment_name: Name of the active learning experiment
+* --patience: Maximal number of consecutive rounds without improvement
 * --batch_size: Batch size of dataloaders storing train, valid and test set
 * --lr: Learning rate of the model during training
 * --weight_decay: The regularization term
