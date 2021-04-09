@@ -34,9 +34,7 @@ def argument_parser():
                         choices=['random_sampling', 'least_confident', 'margin_sampling',
                                  'entropy_sampling'],
                         help='Query strategy of the expert')
-    parser.add_argument('--experiment_name', type=str, default='least_confident',
-                        choices=['random_sampling', 'least_confident', 'margin_sampling',
-                                 'entropy_sampling'],
+    parser.add_argument('--experiment_name', type=str, default='exp',
                         help='Name of the active learning experiment')
     parser.add_argument('--batch_size', type=int, default=50,
                         help='Batch size of dataloaders storing train, valid and test set')
