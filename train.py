@@ -50,6 +50,8 @@ def argument_parser():
     parser.add_argument('--data_aug', default=False, action='store_true',
                         help='Bool indicating if we want data augmentation in the '
                              'training set')
+    parser.add_argument('--n_rounds', type=int, default=3,
+                        help='Number of active learning rounds')
     return parser.parse_args()
 
 
@@ -94,6 +96,7 @@ if __name__ == "__main__":
     weight_decay = args.weight_decay
     pretrained = args.pretrained
     data_aug = args.data_aug
+    n_rounds = args.n_rounds
 
     if pretrained:
         pretrained = True
@@ -107,4 +110,4 @@ if __name__ == "__main__":
                                    batch_size=batch_size, lr=lr, weight_decay=weight_decay,
                                    pretrained=pretrained, data_aug=data_aug)
 
-    active_learner(n_rounds=3)
+    active_learner(n_rounds=n_rounds)
