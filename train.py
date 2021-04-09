@@ -1,5 +1,8 @@
 import argparse
+import sys
 from src.models.ActiveLearning import ActiveLearner
+
+REQUIRED_PYTHON = "python3"
 
 
 def argument_parser():
@@ -38,10 +41,35 @@ def argument_parser():
                         help='Learning rate of the model during training')
     parser.add_argument('--weight_decay', type=float, default=0,
                         help='The regularization term')
+    parser.add_argument('--pretrained', default=False, action='store_true',
+                        help='Bool indicating if the model used must be pretrained on '
+                             'ImageNet')
+    parser.add_argument('--data_aug', default=False, action='store_true',
+                        help='Bool indicating if we want data augmentation in the '
+                             'training set')
     return parser.parse_args()
 
 
+def main():
+    system_major = sys.version_info.major
+    if REQUIRED_PYTHON == "python":
+        required_major = 2
+    elif REQUIRED_PYTHON == "python3":
+        required_major = 3
+    else:
+        raise ValueError("Unrecognized python interpreter: {}".format(
+            REQUIRED_PYTHON))
+
+    if system_major != required_major:
+        raise TypeError(
+            "This project requires Python {}. Found: Python {}".format(
+                required_major, sys.version))
+    else:
+        print(">>> Development environment passes all tests!")
+
+
 if __name__ == "__main__":
+    main()
 
     args = argument_parser()
 
@@ -55,10 +83,18 @@ if __name__ == "__main__":
     batch_size = args.batch_size
     lr = args.lr
     weight_decay = args.weight_decay
+    pretrained = args.pretrained
+    data_aug = args.data_aug
+
+    if pretrained:
+        pretrained = True
+
+    if data_aug:
+        data_aug = True
 
     active_learner = ActiveLearner(model, dataset, n_start=n_start, n_new=n_new, epochs=epochs,
                                    query_strategy=query_strategy, experiment_name=query_strategy,
                                    batch_size=batch_size, lr=lr, weight_decay=weight_decay,
-                                   pretrained=False, data_aug=False)
+                                   pretrained=pretrained, data_aug=data_aug)
 
     active_learner(n_rounds=3)
