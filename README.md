@@ -9,6 +9,10 @@ This project implements active learning methods for deep neural networks. The go
 to compare different active learning sampling criteria using different models and datasets
 for the image classification task.
 
+This figure shows the implemented pool-based active learning framework:
+
+![](/report/figures/PBAL.png?raw=true)
+
 **Models:**
 * ResNet34
 * SqueezeNet 1.1
