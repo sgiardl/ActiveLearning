@@ -1,5 +1,17 @@
+"""
+File:
+    experiment.py
+
+Authors:
+    - Abir Riahi
+    - Nicolas Raymond
+    - Simon Giard-Leroux
+
+Description:
+    Argument parser to get command line arguments
+"""
+
 import argparse
-import subprocess
 from src.models.ActiveLearning import ActiveLearner
 
 
