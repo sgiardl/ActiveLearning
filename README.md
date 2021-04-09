@@ -1,7 +1,26 @@
 Active Learning for Image Classification
 ==============================
 
-This repository contains the term project for neural networks class (IFT780) at the University of Sherbrooke (Winter 2021).
+This repository contains the term project for neural networks class (IFT780) 
+at the University of Sherbrooke (Winter 2021).
+
+## Introduction
+This project implements active learning methods for deep neural networks. The goal is
+to compare different active learning sampling criteria using different models and datasets
+for the image classification task.
+
+**Models:**
+* ResNet34
+* SqueezeNet 1.1
+
+**Datasets:**
+* EMNIST (62 classes)
+* CIFAR10 (10 classes)
+
+**Active learning query strategies:**
+* Least Confidence (LC)
+* Margin Sampling
+* Entropy Sampling
 
 ## Installation
 Install dependencies on a python environment
@@ -11,13 +30,13 @@ $ pip3 install -r requirements.txt
 
 ## Module Details
 
-### train.py
+### **train.py**
 
-**Description :**
+**Description:**
 
 This program enables user to train different models of classification using passive or active learning.
 
-**Options :**
+**Options:**
 
 * --model: Name of the model to train
 * --dataset: Name of the dataset to learn on
@@ -33,7 +52,7 @@ This program enables user to train different models of classification using pass
 * --data_aug
 * --n_rounds: Number of active learning rounds
 
-**Examples of basic use :**
+**Examples of basic use:**
 
 ```
 python3 train.py
@@ -92,3 +111,8 @@ Project Organization
 --------
 
 <p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
+
+## Authors
+* Abir Riahi
+* Nicolas Raymond
+* Simon Giard-Leroux
