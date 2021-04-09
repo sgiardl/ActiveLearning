@@ -119,10 +119,10 @@ class ActiveLearner:
             outfile.write(json_obj)
 
         # We save the plots
-        self.visualization_manager.show_labels_history(self.expert, show=True,
+        self.visualization_manager.show_labels_history(self.expert, show=False,
                                                        save_path=os.path.join(self.experiment_name, "labels_prog"))
 
-        self.visualization_manager.show_loss_acc_chart(self.training_manager.results,
+        self.visualization_manager.show_loss_acc_chart(self.training_manager.results, show=False,
                                                        save_path=os.path.join(self.experiment_name, "loss_acc_prog"))
 
     def __call__(self, n_rounds: int) -> None:
@@ -148,7 +148,6 @@ class ActiveLearner:
             # We train the model on labeled image in the training set
             print(f"{loop_reference} - Training...")
             self.training_manager.train_model(self.epochs)
-            self.visualization_manager.show_loss_acc_chart(self.training_manager.results)
 
             # We evaluate our model on the current test set
             print(f"{loop_reference} - Validation...")
