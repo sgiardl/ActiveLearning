@@ -8,7 +8,7 @@ Authors:
     - Simon Giard-Leroux
 
 Description:
-    Argument parser to get command line arguments
+    Parsing Python command line arguments
 """
 
 import argparse
@@ -19,10 +19,12 @@ def argument_parser():
     """
     This function defines a parser to enable user to easily experiment different models
     """
+    # Create a parser
     parser = argparse.ArgumentParser(usage='\n python3 train.py [model] [dataset] [hyper_parameters]',
                                      description="This program enables user to train different "
                                                  "models of classification using passive or "
                                                  "active learning.")
+    # Add arguments
     parser.add_argument('-m', '--model', type=str, default='SqueezeNet11',
                         choices=['SqueezeNet11', 'ResNet34'],
                         help='Name of the model to train '
@@ -32,10 +34,10 @@ def argument_parser():
                         help='Name of the dataset to learn on '
                              '("CIFAR10" or "EMNIST")')
     parser.add_argument('-ns', '--n_start', type=int, default=100,
-                        help='The number of items that must be randomly '
+                        help='Number of items that must be randomly '
                              'labeled in each class by the Expert')
     parser.add_argument('-nn', '--n_new', type=int, default=100,
-                        help='The number of new items that must be labeled '
+                        help='Number of new items that must be labeled '
                              'within each active learning loop')
     parser.add_argument('-e', '--epochs', type=int, default=50,
                         help='Number of training epochs in each active learning '
@@ -65,6 +67,7 @@ def argument_parser():
 
     args = parser.parse_args()
 
+    # Print arguments
     print("The inputs are:")
     for arg in vars(args):
         print("{} is {}".format(arg, getattr(args, arg)))
@@ -73,10 +76,10 @@ def argument_parser():
 
 
 def main():
-    # Get argument_parser
+    # Parse arguments
     args = argument_parser()
 
-    # Extract parameters values
+    # Extract arguments
     model = args.model
     dataset = args.dataset
     n_start = args.n_start
