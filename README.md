@@ -1,8 +1,7 @@
-Active Learning for Image Classification
-==============================
+# Active Learning for Image Classification
 
 This repository contains the term project for neural networks class (IFT780) 
-at the University of Sherbrooke (Winter 2021).
+at Université de Sherbrooke (Winter 2021).
 
 ## Introduction
 This project implements active learning methods for deep neural networks. The goal is
@@ -32,91 +31,87 @@ Install dependencies on a python environment
 $ pip3 install -r requirements.txt
 ```
 
-## Module Details
+## Module Details: **experiment.py**
 
-### **train.py**
+### Description:
 
-**Description:**
+This program enables user to experiment different models of classification using passive or active learning.
 
-This program enables user to train different models of classification using passive or active learning.
+### Arguments:
 
-**Options:**
+**Reference table**
 
-* --model: Name of the model to train
-* --dataset: Name of the dataset to learn on
-* --n_start: Number of items that must be randomly labeled in each class by the Expert
-* --n_new: Number of new items that must be labeled within each active learning loop
-* --epochs: Number of training epochs in each active learning loop
-* --query_strategy: Query strategy of the expert
-* --experiment_name: Name of the active learning experiment
-* --batch_size: Batch size of dataloaders storing train, valid and test set
-* --lr: Learning rate of the model during training
-* --weight_decay: The regularization term
-* --pretrained
-* --data_aug
-* --n_rounds: Number of active learning rounds
+| Short 	| Long              	| Type    	| Default           	| Choices                                                                       	| Description                                                                   	|
+|-------	|-------------------	|---------	|-------------------	|-------------------------------------------------------------------------------	|-------------------------------------------------------------------------------	|
+| `-m`    	| `--model`           	| str     	| `'SqueezeNet11'`    	| [`'SqueezeNet11', 'ResNet34'`]                                                  	| Name of the model to train                                                    	|
+| `-d`    	| `--dataset`         	| str     	| `'CIFAR10'`         	| [`'CIFAR10', 'EMNIST'`]                                                         	| Name of the dataset to learn on                                               	|
+| `-ns`   	| `--n_start`         	| int     	| `100`               	|                                                                               	| The number of items that must be randomly labeled in each class by the Expert 	|
+| `-nn`   	| `--n_new`           	| int     	| `100`               	|                                                                               	| The number of new items that must be labeled within each active learning loop 	|
+| `-e`    	| `--epochs`          	| int     	| `50`                	|                                                                               	| Number of training epochs in each active learning loop                        	|
+| `-qs`   	| `--query_strategy`  	| str     	| `'least_confident'` 	| [`'random_sampling', 'least_confident', 'margin_sampling', 'entropy_sampling'`] 	| Query strategy of the expert                                                  	|
+| `-en`   	| `--experiment_name` 	| str     	| `'test'`            	|                                                                               	| Name of the active learning experiment                                        	|
+| `-p`    	| `--patience`        	| int     	| `4`                 	|                                                                               	| Maximal number of consecutive rounds without improvement                      	|
+| `-b`    	| `--batch_size`      	| int     	| `50`                	|                                                                               	| Batch size of dataloaders storing train, valid and test set                   	|
+| `-lr`   	| `--learning_rate`   	| float   	| `0.0001`            	|                                                                               	| Learning rate of the model during training                                    	|
+| `-wd`   	| `--weight_decay`    	| float   	| `0`                 	|                                                                               	| Regularization term                                                           	|
+| `-pt`   	| `--pretrained`      	| boolean 	| False             	|                                                                               	| Boolean indicating if the model used must be pretrained on ImageNet           	|
+| `-da`   	| `--data_aug`        	| boolean 	| False             	|                                                                               	| Boolean indicating if we want data augmentation in the training set           	|
+| `-nr`   	| `--n_rounds`        	| int     	| `3`                 	|                                                                               	| Number of active learning rounds                                              	|
 
-**Examples of basic use:**
+``-h``, ``--help``
+show this help message and exit
+
+### Examples of basic use:
 
 ```
-python3 train.py
-python3 train.py --model='SqueezeNet11' --dataset='CIFAR10' --epochs=50
+python3 experiment.py
+python3 experiment.py --model='SqueezeNet11' --dataset='CIFAR10' --epochs=50
 ```
 
-Project Organization
-------------
+## Project Organization
 
-    ├── LICENSE
-    ├── Makefile           <- Makefile with commands like `make data` or `make train`
     ├── README.md          <- The top-level README for developers using this project.
-    ├── data
-    │   ├── external       <- Data from third party sources.
-    │   ├── interim        <- Intermediate data that has been transformed.
-    │   ├── processed      <- The final, canonical data sets for modeling.
-    │   └── raw            <- The original, immutable data dump.
     │
-    ├── docs               <- A default Sphinx project; see sphinx-doc.org for details
+    ├── data
+    │   └── raw            <- The original, immutable data dump.
+    │       ├── cifar-10-batches-py
+    │       └── cifar-10-python.tar.gz
+    │
+    ├── experiment.py      <- Argument parser to get command line arguments
     │
     ├── models             <- Trained and serialized models, model predictions, or model summaries
     │
-    ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-    │                         the creator's initials, and a short `-` delimited description, e.g.
-    │                         `1.0-jqp-initial-data-exploration`.
-    │
-    ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
-    │
-    ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
+    ├── reports            <- Generated analysis as PDF and LaTeX.
     │   └── figures        <- Generated graphics and figures to be used in reporting
+    │       └── PBAL.png
     │
     ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
     │                         generated with `pip freeze > requirements.txt`
     │
-    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
     ├── src                <- Source code for use in this project.
-    │   ├── __init__.py    <- Makes src a Python module
-    │   │
     │   ├── data           <- Scripts to download or generate data
-    │   │   └── make_dataset.py
-    │   │
-    │   ├── features       <- Scripts to turn raw data into features for modeling
-    │   │   └── build_features.py
+    │   │   ├── DataLoaderManager.py
+    │   │   ├── DatasetManager.py
+    │   │   └── constants.py
     │   │
     │   ├── models         <- Scripts to train models and then use trained models to make
     │   │   │                 predictions
-    │   │   ├── predict_model.py
-    │   │   └── train_model.py
+    │   │   ├── ActiveLearning.py
+    │   │   ├── Expert.py
+    │   │   ├── TrainValidTestManager.py
+    │   │   └── constants.py
     │   │
     │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
-    │       └── visualize.py
+    │       └── VisualizationManager.py
     │
-    └── tox.ini            <- tox file with settings for running tox; see tox.readthedocs.io
-
-
---------
-
-<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
+    └── test_environment.py      <- Test environment to test the active learning loop.
 
 ## Authors
 * Abir Riahi
 * Nicolas Raymond
 * Simon Giard-Leroux
+
+--------
+
+<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. </small></p>
+
