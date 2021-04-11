@@ -27,7 +27,7 @@ class VisualizationManager:
         """
         Declare some member attributes for chart formatting.
         """
-        self.legend_loc = 'upper right'
+        self.legend_loc = 'best'
         self.marker = '.'
         self.train_label = 'Training'
         self.valid_label = 'Validation'
@@ -141,7 +141,7 @@ class VisualizationManager:
         labels_count.sort(key=lambda t: t[0])
         labels, count = list(zip(*labels_count))
 
-        # We add count string to labelsß
+        # We add count string to labels
         labels = [f"{labels[i]} ({count[i]})" for i in range(len(labels))]
 
         # We create the figure
@@ -189,25 +189,25 @@ class VisualizationManager:
 
         # Plot each accuracy list in accuracy dictionary with the corresponding query strategy
         for records in records_list:
-            plt.plot(x=records['Query Instances'],
-                     y=records['Validation-2 Accuracy'],
+            plt.plot(records['Query Instances'],
+                     records['Validation-2 Accuracy'],
                      label=records['Initialization'][curve_label])
 
             # plt.plot(accuracy_dic[key], marker=self.marker, label=key)
 
-            # We set axis labels and legend
-            plt.ylabel('Training Accuracy')
-            plt.xlabel('Number of Instance Queries')
-            plt.legend(loc='lower right')
-            plt.ylim([0, 1])
+        # We set axis labels and legend
+        plt.ylabel('Training Accuracy')
+        plt.xlabel('Number of Instance Queries')
+        plt.legend(loc=self.legend_loc)
+        plt.ylim([0, 1])
 
-            # We save it
-            if save_path is not None:
-                plt.savefig(f"{save_path}.{fig_format}")
+        # We save it
+        if save_path is not None:
+            plt.savefig(f"{save_path}.{fig_format}")
 
-            # We show the plot
-            if show:
-                plt.show()
+        # We show the plot
+        if show:
+            plt.show()
 
     @staticmethod
     def load_results(folder_prefix: str, model: str):
