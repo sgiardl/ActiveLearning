@@ -87,7 +87,7 @@ class ActiveLearner:
         # We initialize a dictionary that will contains all data to save in a json file at the end
         self.history = {'Initialization': {'model': model, 'dataset': dataset, 'n_start': n_start, 'n_new': n_new,
                                            'epochs': epochs, 'valid_size_1': valid_size_1, 'valid_size_2': valid_size_2,
-                                           'lr': lr, 'pretrained': pretrained, 'query_strategy:': query_strategy,
+                                           'lr': lr, 'pretrained': pretrained, 'query_strategy': query_strategy,
                                            'batch_size': batch_size, 'weight_decay': weight_decay, 'patience': patience,
                                            'shuffle': shuffle, 'data_aug': data_aug, 'seed': init_sampling_seed}}
 

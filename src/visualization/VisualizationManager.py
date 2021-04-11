@@ -15,6 +15,8 @@ import matplotlib.pyplot as plt
 from typing import Union
 from src.models.Expert import Expert
 import numpy as np
+import os
+import json
 
 
 class VisualizationManager:
@@ -25,7 +27,7 @@ class VisualizationManager:
         """
         Declare some member attributes for chart formatting.
         """
-        self.legend_loc = 'upper right'
+        self.legend_loc = 'best'
         self.marker = '.'
         self.train_label = 'Training'
         self.valid_label = 'Validation'
@@ -139,7 +141,7 @@ class VisualizationManager:
         labels_count.sort(key=lambda t: t[0])
         labels, count = list(zip(*labels_count))
 
-        # We add count string to labelsß
+        # We add count string to labels
         labels = [f"{labels[i]} ({count[i]})" for i in range(len(labels))]
 
         # We create the figure
@@ -169,27 +171,34 @@ class VisualizationManager:
         if show:
             plt.show()
 
-    def show_learning_curve(self, accuracy_dic: dict,
+    def show_learning_curve(self, folder_prefix: str, model: str, curve_label: str = 'query_strategy',
                             show: bool = True, save_path: Union[str, None] = None,
                             fig_format: str = 'pdf') -> None:
         """
         Method to show the learning curve, accuracy vs the number of active learning instance queries
 
-        :param accuracy_dic: dictionary, keys are the query strategies and items are a list of accuracies by query
+        :param folder_prefix: string, prefix of the folders to consider
+        :param model: string, name of the neural network model to consider
+        :param curve_label: string, name of the initialization parameter to plot for each curve
         :param show: Boolean indicating we want to show the figure
         :param save_path: Path to save the image. The paths must include the file name. (None == unsaved)
         :param fig_format: Format used to save the figure
 
         :return: None
         """
-        # Plot each accuracy list in accuracy dictionary with the corresponding query strategy
-        for key in accuracy_dic:
-            plt.plot(accuracy_dic[key], marker=self.marker, label=key)
+        # Load json records list
+        records_list = self.load_results(folder_prefix, model)
+
+        # Plot each accuracy list  with the corresponding parameter
+        for records in records_list:
+            plt.plot(records['Query Instances'],
+                     records['Validation-2 Accuracy'],
+                     label=records['Initialization'][curve_label])
 
         # We set axis labels and legend
         plt.ylabel('Training Accuracy')
         plt.xlabel('Number of Instance Queries')
-        plt.legend(loc='lower right')
+        plt.legend(loc=self.legend_loc)
         plt.ylim([0, 1])
 
         # We save it
@@ -199,3 +208,33 @@ class VisualizationManager:
         # We show the plot
         if show:
             plt.show()
+
+    @staticmethod
+    def load_results(folder_prefix: str, model: str) -> list:
+        """
+        Method to load results from json files
+
+        :param folder_prefix: string, prefix of the folders to consider
+        :param model: string, name of the neural network model to consider
+
+        :return: list of json records
+        """
+        # Get list of all folders in the current working directory
+        folder_list = [x[0].rsplit('/', 1)[-1] for x in os.walk(os.getcwd())]
+
+        # Only keep folders that start with the folder_prefix string
+        folder_list = [x for x in folder_list if x.startswith(folder_prefix)]
+
+        # Declare blank records list
+        records_list = []
+
+        # Loop through each folder
+        for folder in folder_list:
+            # Load json records file
+            records = json.load(open(os.path.join(folder, 'records.json')))
+
+            # If model is the specified one, add the records to the records list
+            if records['Initialization']['model'] == model:
+                records_list.append(records)
+
+        return records_list

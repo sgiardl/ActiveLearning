@@ -91,3 +91,5 @@ target/
 
 # Test results
 /test*
+/generalization*
+/least_confident*
