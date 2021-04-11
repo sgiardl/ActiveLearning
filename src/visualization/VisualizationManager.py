@@ -177,23 +177,23 @@ class VisualizationManager:
         """
         Method to show the learning curve, accuracy vs the number of active learning instance queries
 
-        :param accuracy_dic: dictionary, keys are the query strategies and items are a list of accuracies by query
+        :param folder_prefix: string, prefix of the folders to consider
+        :param model: string, name of the neural network model to consider
+        :param curve_label: string, name of the initialization parameter to plot for each curve
         :param show: Boolean indicating we want to show the figure
         :param save_path: Path to save the image. The paths must include the file name. (None == unsaved)
         :param fig_format: Format used to save the figure
 
         :return: None
         """
-
+        # Load json records list
         records_list = self.load_results(folder_prefix, model)
 
-        # Plot each accuracy list in accuracy dictionary with the corresponding query strategy
+        # Plot each accuracy list  with the corresponding parameter
         for records in records_list:
             plt.plot(records['Query Instances'],
                      records['Validation-2 Accuracy'],
                      label=records['Initialization'][curve_label])
-
-            # plt.plot(accuracy_dic[key], marker=self.marker, label=key)
 
         # We set axis labels and legend
         plt.ylabel('Training Accuracy')
@@ -210,13 +210,14 @@ class VisualizationManager:
             plt.show()
 
     @staticmethod
-    def load_results(folder_prefix: str, model: str):
+    def load_results(folder_prefix: str, model: str) -> list:
         """
+        Method to load results from json files
 
-        :param folder_prefix:
-        :param model:
-        :param curve_label:
-        :return:
+        :param folder_prefix: string, prefix of the folders to consider
+        :param model: string, name of the neural network model to consider
+
+        :return: list of json records
         """
         # Get list of all folders in the current working directory
         folder_list = [x[0].rsplit('/', 1)[-1] for x in os.walk(os.getcwd())]
