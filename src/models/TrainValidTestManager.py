@@ -22,7 +22,7 @@ from tqdm import tqdm
 from typing import Optional
 import torchvision.models as models
 import torch.nn as nn
-from .constants import *
+from src.models.constants import *
 
 MODELS = [RESNET18, SQUEEZE_NET_1_1]
 
@@ -151,8 +151,8 @@ class TrainValidTestManager:
             pbar.reset()
 
             # Save the training loss and accuracy in the object
-            self.results['Training Loss'].append(np.mean(loss_list_epoch))
-            self.results['Training Accuracy'].append(np.mean(accuracy_list_epoch))
+            self.results['Training Loss'].append(round(np.mean(loss_list_epoch), NB_SAVE_DIGITS))
+            self.results['Training Accuracy'].append(round(np.mean(accuracy_list_epoch), NB_SAVE_DIGITS))
 
             # Validate the model
             self.validate_model()
@@ -198,8 +198,8 @@ class TrainValidTestManager:
         mean_accuracy = np.mean(accuracy_list)
 
         # Save mean loss and mean accuracy in the object
-        self.results['Validation Loss'].append(mean_loss)
-        self.results['Validation Accuracy'].append(mean_accuracy)
+        self.results['Validation Loss'].append(round(mean_loss,NB_SAVE_DIGITS))
+        self.results['Validation Accuracy'].append(round(mean_accuracy, NB_SAVE_DIGITS))
 
     def test_model(self, final_eval: bool = False) -> float:
         """
