@@ -130,9 +130,13 @@ class VisualizationManager:
         # We extract the number of labeled images from each class
         labels_count = [(expert.idx_to_class[k], v[-1] - v[0]) for (k, v) in expert.labeled_history.items()]
 
-        # We only keep the top 10 classes with most labels
-        labels_count.sort(key=lambda t: t[1], reverse=True)
-        labels_count = labels_count[:10]
+        # We only keep the top 10 classes with most labels (if there are more than 10 labels)
+        if len(labels_count) > 10:
+            labels_count.sort(key=lambda t: t[1], reverse=True)
+            labels_count = labels_count[:10]
+
+        # We sort remaining labels by alphabetical order
+        labels_count.sort(key=lambda t: t[0])
         labels, count = list(zip(*labels_count))
 
         # We add count string to labelsß
