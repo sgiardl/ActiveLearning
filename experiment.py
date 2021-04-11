@@ -64,6 +64,8 @@ def argument_parser():
                              'training set')
     parser.add_argument('-nr', '--n_rounds', type=int, default=3,
                         help='Number of active learning rounds')
+    parser.add_argument('-s', '--init_sampling_seed', type=int, default=None,
+                        help='Seed value set when the expert labels n_start items randomly in each class at start')
 
     args = parser.parse_args()
 
@@ -94,6 +96,7 @@ def main():
     pretrained = args.pretrained
     data_aug = args.data_aug
     n_rounds = args.n_rounds
+    init_sampling_seed = args.init_sampling_seed
 
     if pretrained:
         pretrained = True
@@ -105,7 +108,8 @@ def main():
     active_learner = ActiveLearner(model, dataset, n_start=n_start, n_new=n_new, epochs=epochs,
                                    query_strategy=query_strategy, experiment_name=experiment_name,
                                    batch_size=batch_size, lr=learning_rate, weight_decay=weight_decay,
-                                   pretrained=pretrained, data_aug=data_aug, patience=patience)
+                                   pretrained=pretrained, data_aug=data_aug, patience=patience,
+                                   init_sampling_seed=init_sampling_seed)
 
     active_learner(n_rounds=n_rounds)
 

@@ -1,8 +1,9 @@
 
 import time
 import subprocess as sp
-from typing import Callable, Sequence
-FIXED_CMDS = ['python3', 'experiment.py']
+from typing import Callable
+SEED = 2021
+FIXED_CMDS = ['python3', 'experiment.py', '--seed', f"{SEED}"]
 
 
 def send_experiment_cmds(combination_generator: Callable[[list], list],

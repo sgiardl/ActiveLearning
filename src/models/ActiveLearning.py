@@ -15,9 +15,10 @@ from src.models.Expert import Expert
 from src.models.TrainValidTestManager import TrainValidTestManager
 from src.data.DatasetManager import DatasetManager
 from src.data.DataLoaderManager import DataLoaderManager
-from torch.utils.data import Subset
 from src.visualization.VisualizationManager import VisualizationManager
 from src.models.constants import NB_SAVE_DIGITS
+from torch.utils.data import Subset
+from typing import Optional
 import json
 import os
 import time
@@ -31,7 +32,8 @@ class ActiveLearner:
                  query_strategy: str, experiment_name: str, patience: int = 4,
                  batch_size: int = 50, shuffle: bool = False, num_workers: int = 8,
                  lr: float = 0.0001, weight_decay: float = 0, pretrained: bool = False,
-                 valid_size_1: float = 0.20, valid_size_2: float = 0.20, data_aug: bool = False) -> None:
+                 valid_size_1: float = 0.20, valid_size_2: float = 0.20,
+                 data_aug: bool = False, init_sampling_seed: Optional[int] = None) -> None:
         """
         :param model: Name of the model to train ("ResNet34" or "SqueezeNet11")
         :param dataset: Name of the dataset to learn on ("CIFAR10" or "EMNIST")
@@ -51,13 +53,14 @@ class ActiveLearner:
         :param valid_size_1: Portion of train set used as valid 1
         :param valid_size_2: Portion of train set used as valid 2
         :param data_aug: Bool indicating if we want data augmentation in the training set
+        :param init_sampling_seed: Seed value set for Expert first sampling choices
         """
 
         # We create a temporary manager
         dataset_manager = DatasetManager(dataset, valid_size_1, valid_size_2, data_aug)
 
         # We first initialize an expert
-        self.expert = Expert(dataset_manager.dataset_train, n_start, query_strategy)
+        self.expert = Expert(dataset_manager.dataset_train, n_start, query_strategy, init_sampling_seed)
 
         # We initialize DataLoaderManager and save DatasetManager
         self.loader_manager = DataLoaderManager(dataset_manager, self.expert, batch_size, shuffle, num_workers)
@@ -86,7 +89,7 @@ class ActiveLearner:
                                            'epochs': epochs, 'valid_size_1': valid_size_1, 'valid_size_2': valid_size_2,
                                            'lr': lr, 'pretrained': pretrained, 'query_strategy:': query_strategy,
                                            'batch_size': batch_size, 'weight_decay': weight_decay, 'patience': patience,
-                                           'shuffle': shuffle, 'data_aug': data_aug}}
+                                           'shuffle': shuffle, 'data_aug': data_aug, 'seed': init_sampling_seed}}
 
     def update_labeled_items(self) -> None:
         """
