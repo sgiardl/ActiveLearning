@@ -96,7 +96,11 @@ class VisualizationManager:
         # We set axis labels and legend
         plt.ylabel('Number of labeled images')
         plt.xlabel('Active learning iterations')
-        plt.legend()
+        plt.legend(loc="upper center",
+                   fontsize='x-small',
+                   ncol=2,
+                   bbox_to_anchor=(1.30, 1))
+        plt.tight_layout()
 
         # We save it
         if save_path is not None:
