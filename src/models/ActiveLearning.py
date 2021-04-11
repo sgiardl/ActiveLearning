@@ -17,6 +17,7 @@ from src.data.DatasetManager import DatasetManager
 from src.data.DataLoaderManager import DataLoaderManager
 from torch.utils.data import Subset
 from src.visualization.VisualizationManager import VisualizationManager
+from src.models.constants import NB_SAVE_DIGITS
 import json
 import os
 import time
@@ -71,7 +72,8 @@ class ActiveLearner:
         self.experiment_name = experiment_name + time.strftime("_%Y-%m-%d_%H-%M-%S")
 
         # We initialize attributes to keep track of active learning loops
-        self.loop_progress = []
+        self.query_instances = [0]
+        self.accuracy_progress = []
         self.best_accuracy = 0
         self.patience = patience
         self.patience_count = 0
@@ -104,14 +106,21 @@ class ActiveLearner:
         # We add training loss, valid loss, training accuracy and test accuracy to the dictionary
         self.history['Loops Progress'] = self.training_manager.results
 
+        # We add query instances
+        self.history['Query Instances'] = self.query_instances
+
         # We add the valid_2 accuracy over rounds
-        self.history['Validation-2 Accuracy Coordinates'] = self.loop_progress
+        self.history['Validation-2 Accuracy'] = self.accuracy_progress
 
         # We save the final test score
-        self.history['Final Test Score'] = self.training_manager.test_model(final_eval=True)
+        self.history['Final Test Score'] = round(self.training_manager.test_model(final_eval=True), NB_SAVE_DIGITS)
 
         # We save the stopping condition reached
         self.history['Premature Stop'] = True if self.patience_count == self.patience else False
+
+        # We save the labels history from the Expert
+        self.history['Label History'] = {self.expert.idx_to_class[k]: v for (k, v)
+                                         in self.expert.labeled_history.items()}
 
         # We dump the dictionary into a json file
         json_obj = json.dumps(self.history, indent=4)
@@ -150,9 +159,9 @@ class ActiveLearner:
 
             # We evaluate our model on the current test set
             print(f"{loop_reference} - Validation...")
-            accuracy = self.training_manager.test_model()
-            self.loop_progress.append(((i-1)*self.n_new, accuracy))
-            print(f"{loop_reference} - Validation-2 Accuracy {round(accuracy,4)}")
+            accuracy = round(self.training_manager.test_model(), 4)
+            self.accuracy_progress. append(accuracy)
+            print(f"{loop_reference} - Validation-2 Accuracy {accuracy}")
 
             # We evaluate the patience
             accuracy_diff = accuracy - self.best_accuracy
@@ -178,6 +187,7 @@ class ActiveLearner:
 
             # We request labels to our expert
             print(f"{loop_reference} - Labels Request")
+            self.query_instances.append(i*self.n_new)
             self.expert.add_labels(self.loader_manager.unlabeled_idx, unlabeled_softmax,
                                    self.n_new, self.dataset_manager.dataset_train)
 
