@@ -171,7 +171,7 @@ class VisualizationManager:
         if show:
             plt.show()
 
-    def show_learning_curve(self, accuracy_dic: dict,
+    def show_learning_curve(self, folder_prefix: str, model: str, curve_label: str = 'query_strategy',
                             show: bool = True, save_path: Union[str, None] = None,
                             fig_format: str = 'pdf') -> None:
         """
@@ -184,26 +184,33 @@ class VisualizationManager:
 
         :return: None
         """
+
+        records_list = self.load_results(folder_prefix, model)
+
         # Plot each accuracy list in accuracy dictionary with the corresponding query strategy
-        for key in accuracy_dic:
-            plt.plot(accuracy_dic[key], marker=self.marker, label=key)
+        for records in records_list:
+            plt.plot(x=records['Query Instances'],
+                     y=records['Validation-2 Accuracy'],
+                     label=records['Initialization'][curve_label])
 
-        # We set axis labels and legend
-        plt.ylabel('Training Accuracy')
-        plt.xlabel('Number of Instance Queries')
-        plt.legend(loc='lower right')
-        plt.ylim([0, 1])
+            # plt.plot(accuracy_dic[key], marker=self.marker, label=key)
 
-        # We save it
-        if save_path is not None:
-            plt.savefig(f"{save_path}.{fig_format}")
+            # We set axis labels and legend
+            plt.ylabel('Training Accuracy')
+            plt.xlabel('Number of Instance Queries')
+            plt.legend(loc='lower right')
+            plt.ylim([0, 1])
 
-        # We show the plot
-        if show:
-            plt.show()
+            # We save it
+            if save_path is not None:
+                plt.savefig(f"{save_path}.{fig_format}")
+
+            # We show the plot
+            if show:
+                plt.show()
 
     @staticmethod
-    def load_results(folder_prefix: str, model: str, curve_label: str):
+    def load_results(folder_prefix: str, model: str):
         """
 
         :param folder_prefix:
@@ -217,8 +224,16 @@ class VisualizationManager:
         # Only keep folders that start with the folder_prefix string
         folder_list = [x for x in folder_list if x.startswith(folder_prefix)]
 
+        # Declare blank records list
+        records_list = []
+
         # Loop through each folder
         for folder in folder_list:
             # Load json records file
-            results = json.load(open(os.path.join(folder, 'records.json')))
+            records = json.load(open(os.path.join(folder, 'records.json')))
 
+            # If model is the specified one, add the records to the records list
+            if records['Initialization']['model'] == model:
+                records_list.append(records)
+
+        return records_list
