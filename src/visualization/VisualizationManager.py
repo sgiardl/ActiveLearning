@@ -15,6 +15,8 @@ import matplotlib.pyplot as plt
 from typing import Union
 from src.models.Expert import Expert
 import numpy as np
+import os
+import json
 
 
 class VisualizationManager:
@@ -201,4 +203,22 @@ class VisualizationManager:
             plt.show()
 
     @staticmethod
-    def load_results(folder_prefix: str, model: str, curve_label:str):
+    def load_results(folder_prefix: str, model: str, curve_label: str):
+        """
+
+        :param folder_prefix:
+        :param model:
+        :param curve_label:
+        :return:
+        """
+        # Get list of all folders in the current working directory
+        folder_list = [x[0].rsplit('/', 1)[-1] for x in os.walk(os.getcwd())]
+
+        # Only keep folders that start with the folder_prefix string
+        folder_list = [x for x in folder_list if x.startswith(folder_prefix)]
+
+        # Loop through each folder
+        for folder in folder_list:
+            # Load json records file
+            results = json.load(open(os.path.join(folder, 'records.json')))
+
