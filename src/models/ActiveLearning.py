@@ -137,6 +137,9 @@ class ActiveLearner:
         self.visualization_manager.show_loss_acc_chart(self.training_manager.results, show=False,
                                                        save_path=os.path.join(self.experiment_name, "loss_acc_prog"))
 
+        self.visualization_manager.show_labels_piechart(self.expert, show=False,
+                                                        save_path=os.path.join(self.experiment_name, "labels_piechart"))
+
     def __call__(self, n_rounds: int) -> None:
         """
         Executes the active learning loops

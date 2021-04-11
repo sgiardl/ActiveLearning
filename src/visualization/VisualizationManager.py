@@ -128,9 +128,17 @@ class VisualizationManager:
         """
 
         # We extract the number of labeled images from each class
-        labels = [expert.idx_to_class[k] for k in expert.labeled_history.keys()]
-        count = [v for (_, v) in expert.labeled_history.items()]
+        labels_count = [(expert.idx_to_class[k], v[-1] - v[0]) for (k, v) in expert.labeled_history.items()]
 
+        # We only keep the top 10 classes with most labels
+        labels_count.sort(key=lambda t: t[1], reverse=True)
+        labels_count = labels_count[:10]
+        labels, count = list(zip(*labels_count))
+
+        # We add count string to labelsß
+        labels = [f"{labels[i]} ({count[i]})" for i in range(len(labels))]
+
+        # We create the figure
         fig, ax = plt.subplots(figsize=(6, 3), subplot_kw=dict(aspect="equal"))
 
         wedges, texts = ax.pie(count, wedgeprops=dict(width=0.5), startangle=-40)
@@ -148,8 +156,6 @@ class VisualizationManager:
             kw["arrowprops"].update({"connectionstyle": connectionstyle})
             ax.annotate(labels[i], xy=(x, y), xytext=(1.35 * np.sign(x), 1.4 * y),
                         horizontalalignment=horizontalalignment, **kw)
-
-        ax.set_title("Images labeled per class")
 
         # We save it
         if save_path is not None:
