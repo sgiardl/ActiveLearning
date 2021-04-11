@@ -73,7 +73,7 @@ class DatasetManager:
                                     transform=composed_transforms, download=download, train=train)
 
         else:
-            return datasets.EMNIST(root=root, split='byclass',
+            return datasets.EMNIST(root=root, split='balanced',
                                    transform=composed_transforms, download=download, train=train)
 
     @staticmethod

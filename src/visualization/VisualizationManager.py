@@ -14,6 +14,7 @@ Description:
 import matplotlib.pyplot as plt
 from typing import Union
 from src.models.Expert import Expert
+import numpy as np
 
 
 class VisualizationManager:
@@ -96,7 +97,69 @@ class VisualizationManager:
         # We set axis labels and legend
         plt.ylabel('Number of labeled images')
         plt.xlabel('Active learning iterations')
-        plt.legend()
+        plt.legend(loc="upper center",
+                   fontsize='x-small',
+                   ncol=2,
+                   bbox_to_anchor=(1.30, 1))
+        plt.tight_layout()
+
+        # We save it
+        if save_path is not None:
+            plt.savefig(f"{save_path}.{fig_format}")
+
+        # We show the plot
+        if show:
+            plt.show()
+
+    def show_labels_piechart(self, expert: Expert,
+                             show: bool = True, save_path: Union[str, None] = None,
+                             fig_format: str = 'pdf') -> None:
+        """
+        Create a piechart showing the percentage of each class represented by the labeled data.
+        Code from : https://matplotlib.org/stable/gallery/pie_and_polar_charts/
+                    pie_and_donut_labels.html#sphx-glr-gallery-pie-and-polar-charts-pie-and-donut-labels-py
+
+        :param expert: Expert class, contains the labels history to plot
+        :param show: Boolean indicating we want to show the figure
+        :param save_path: Path to save the image. The paths must include the file name. (None == unsaved)
+        :param fig_format: Format used to save the figure
+
+        :return: None
+        """
+
+        # We extract the number of labeled images from each class
+        labels_count = [(expert.idx_to_class[k], v[-1] - v[0]) for (k, v) in expert.labeled_history.items()]
+
+        # We only keep the top 10 classes with most labels (if there are more than 10 labels)
+        if len(labels_count) > 10:
+            labels_count.sort(key=lambda t: t[1], reverse=True)
+            labels_count = labels_count[:10]
+
+        # We sort remaining labels by alphabetical order
+        labels_count.sort(key=lambda t: t[0])
+        labels, count = list(zip(*labels_count))
+
+        # We add count string to labelsß
+        labels = [f"{labels[i]} ({count[i]})" for i in range(len(labels))]
+
+        # We create the figure
+        fig, ax = plt.subplots(figsize=(6, 3), subplot_kw=dict(aspect="equal"))
+
+        wedges, texts = ax.pie(count, wedgeprops=dict(width=0.5), startangle=-40)
+
+        bbox_props = dict(boxstyle="square,pad=0.3", fc="w", ec="k", lw=0.72)
+        kw = dict(arrowprops=dict(arrowstyle="-"),
+                  bbox=bbox_props, zorder=0, va="center")
+
+        for i, p in enumerate(wedges):
+            ang = (p.theta2 - p.theta1) / 2. + p.theta1
+            y = np.sin(np.deg2rad(ang))
+            x = np.cos(np.deg2rad(ang))
+            horizontalalignment = {-1: "right", 1: "left"}[int(np.sign(x))]
+            connectionstyle = "angle,angleA=0,angleB={}".format(ang)
+            kw["arrowprops"].update({"connectionstyle": connectionstyle})
+            ax.annotate(labels[i], xy=(x, y), xytext=(1.35 * np.sign(x), 1.4 * y),
+                        horizontalalignment=horizontalalignment, **kw)
 
         # We save it
         if save_path is not None:

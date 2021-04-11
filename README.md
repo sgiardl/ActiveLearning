@@ -41,24 +41,26 @@ This program enables user to experiment different models of classification using
 
 **Reference table**
 
-| Short 	| Long              	| Type    	| Default           	| Choices                                                                       	        | Description                                                                   	|
-|-------	|-------------------	|---------	|-------------------	|-------------------------------------------------------------------------------	        |-------------------------------------------------------------------------------	|
-| `-m`    	| `--model`           	| str     	| `'SqueezeNet11'`    	| [`'SqueezeNet11'`, `'ResNet34'`]                                                  	    | Name of the model to train                                                    	|
-| `-d`    	| `--dataset`         	| str     	| `'CIFAR10'`         	| [`'CIFAR10'`, `'EMNIST'`]                                                         	    | Name of the dataset to learn on                                               	|
-| `-ns`   	| `--n_start`         	| int     	| `100`               	|                                                                               	        | Number of items that must be randomly labeled in each class by the Expert 	|
-| `-nn`   	| `--n_new`           	| int     	| `100`               	|                                                                               	        | Number of new items that must be labeled within each active learning loop 	|
-| `-e`    	| `--epochs`          	| int     	| `50`                	|                                                                               	        | Number of training epochs in each active learning loop                        	|
-| `-qs`   	| `--query_strategy`  	| str     	| `'least_confident'` 	| [`'random_sampling'`, `'least_confident'`, `'margin_sampling'`, `'entropy_sampling'`] 	| Query strategy of the expert                                                  	|
-| `-en`   	| `--experiment_name` 	| str     	| `'test'`            	|                                                                               	        | Name of the active learning experiment                                        	|
-| `-p`    	| `--patience`        	| int     	| `4`                 	|                                                                               	        | Maximal number of consecutive rounds without improvement                      	|
-| `-b`    	| `--batch_size`      	| int     	| `50`                	|                                                                               	        | Batch size of dataloaders storing train, valid and test set                   	|
-| `-lr`   	| `--learning_rate`   	| float   	| `0.0001`            	|                                                                               	        | Learning rate of the model during training                                    	|
-| `-wd`   	| `--weight_decay`    	| float   	| `0`                 	|                                                                               	        | Regularization term                                                           	|
-| `-pt`   	| `--pretrained`      	| boolean 	| False             	|                                                                               	        | Boolean indicating if the model used must be pretrained on ImageNet           	|
-| `-da`   	| `--data_aug`        	| boolean 	| False             	|                                                                               	        | Boolean indicating if we want data augmentation in the training set           	|
-| `-nr`   	| `--n_rounds`        	| int     	| `3`                 	|                                                                               	        | Number of active learning rounds                                              	|
+| Short 	| Long              	    | Type    	| Default           	| Choices                                                                       	| Description                                                                   	|
+|-------	|-----------------------	|---------	|-------------------	|-------------------------------------------------------------------------------	|-------------------------------------------------------------------------------	|
+| `-m`    	| `--model`           	    | str     	| `'SqueezeNet11'`    	| [`'SqueezeNet11', 'ResNet34'`]                                                  	| Name of the model to train                                                    	|
+| `-d`    	| `--dataset`         	    | str     	| `'CIFAR10'`         	| [`'CIFAR10', 'EMNIST'`]                                                         	| Name of the dataset to learn on                                               	|
+| `-ns`   	| `--n_start`         	    | int     	| `100`               	|                                                                               	| The number of items that must be randomly labeled in each class by the Expert 	|
+| `-nn`   	| `--n_new`           	    | int     	| `100`               	|                                                                               	| The number of new items that must be labeled within each active learning loop 	|
+| `-e`    	| `--epochs`          	    | int     	| `50`                	|                                                                               	| Number of training epochs in each active learning loop                        	|
+| `-qs`   	| `--query_strategy`  	    | str     	| `'least_confident'` 	| [`'random_sampling', 'least_confident', 'margin_sampling', 'entropy_sampling'`] 	| Query strategy of the expert                                                  	|
+| `-en`   	| `--experiment_name` 	    | str     	| `'test'`            	|                                                                               	| Name of the active learning experiment                                        	|
+| `-p`    	| `--patience`        	    | int     	| `4`                 	|                                                                               	| Maximal number of consecutive rounds without improvement                      	|
+| `-b`    	| `--batch_size`      	    | int     	| `50`                	|                                                                               	| Batch size of dataloaders storing train, valid and test set                   	|
+| `-lr`   	| `--learning_rate`   	    | float   	| `0.0001`            	|                                                                               	| Learning rate of the model during training                                    	|
+| `-wd`   	| `--weight_decay`    	    | float   	| `0`                 	|                                                                               	| Regularization term                                                           	|
+| `-pt`   	| `--pretrained`      	    | boolean 	| False             	|                                                                               	| Boolean indicating if the model used must be pretrained on ImageNet           	|
+| `-da`   	| `--data_aug`        	    | boolean 	| False             	|                                                                               	| Boolean indicating if we want data augmentation in the training set           	|
+| `-nr`   	| `--n_rounds`        	    | int     	| `3`                 	|                                                                               	| Number of active learning rounds                                              	|
+| `-s`   	| `--init_sampling_seed`    | int     	| None                 	|                                                                               	| Seed value set when the expert labels items randomly in each class at start       |
 
-`-h`, `--help` show help message and exit
+``-h``, ``--help``
+show this help message and exit
 
 ### Examples of basic use:
 

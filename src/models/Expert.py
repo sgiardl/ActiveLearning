@@ -11,11 +11,12 @@ Description:
     Defines the Expert class.
 """
 
-from numpy.random import choice
+from numpy.random import choice, seed
 from torch import tensor, nonzero
 from torch.utils.data import SubsetRandomSampler, Dataset, Subset
-import torch
 from torch.distributions import Categorical
+from typing import Optional
+import torch
 
 PRIORITISATION_CRITERION = ['random_sampling', 'least_confident', 'margin_sampling', 'entropy_sampling']
 
@@ -24,7 +25,8 @@ class Expert:
     """
     Expert class, to simulate the manual labelling of unlabeled data by an expert.
     """
-    def __init__(self, dataset: Dataset, n: int, query_strategy: str = 'random_sampling') -> None:
+    def __init__(self, dataset: Dataset, n: int, query_strategy: str = 'random_sampling',
+                 init_sampling_seed: Optional[int] = None) -> None:
         """
         Select randomly n items from each class of the training dataset.
         These will be the first labeled items from our expert.
@@ -32,7 +34,11 @@ class Expert:
         :param dataset: PyTorch dataset
         :param n: Number of item to label per class at start
         :param query_strategy: Name of the function that our expert uses to prioritise next images to label
+        :param init_sampling_seed: Sampling seed value that guides expert first labeling choices
         """
+
+        # We first set the seed value
+        self.seed = init_sampling_seed
 
         # We initialize the criterion object
         self.initialize_query_strategy(query_strategy)
@@ -154,6 +160,10 @@ class Expert:
         :param dataset: PyTorch dataset
         :param n: Number of items to label per class at start
         """
+        # We set the numpy seed value
+        if self.seed is not None:
+            seed(self.seed)
+
         # We save targets in a tensor
         if type(dataset) == Subset:
             targets = tensor([dataset.dataset.targets[i] for i in dataset.indices])

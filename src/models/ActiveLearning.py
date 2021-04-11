@@ -15,8 +15,10 @@ from src.models.Expert import Expert
 from src.models.TrainValidTestManager import TrainValidTestManager
 from src.data.DatasetManager import DatasetManager
 from src.data.DataLoaderManager import DataLoaderManager
-from torch.utils.data import Subset
 from src.visualization.VisualizationManager import VisualizationManager
+from src.models.constants import NB_SAVE_DIGITS
+from torch.utils.data import Subset
+from typing import Optional
 import json
 import os
 import time
@@ -30,7 +32,8 @@ class ActiveLearner:
                  query_strategy: str, experiment_name: str, patience: int = 4,
                  batch_size: int = 50, shuffle: bool = False, num_workers: int = 8,
                  lr: float = 0.0001, weight_decay: float = 0, pretrained: bool = False,
-                 valid_size_1: float = 0.20, valid_size_2: float = 0.20, data_aug: bool = False) -> None:
+                 valid_size_1: float = 0.20, valid_size_2: float = 0.20,
+                 data_aug: bool = False, init_sampling_seed: Optional[int] = None) -> None:
         """
         :param model: Name of the model to train ("ResNet34" or "SqueezeNet11")
         :param dataset: Name of the dataset to learn on ("CIFAR10" or "EMNIST")
@@ -50,13 +53,14 @@ class ActiveLearner:
         :param valid_size_1: Portion of train set used as valid 1
         :param valid_size_2: Portion of train set used as valid 2
         :param data_aug: Bool indicating if we want data augmentation in the training set
+        :param init_sampling_seed: Seed value set for Expert first sampling choices
         """
 
         # We create a temporary manager
         dataset_manager = DatasetManager(dataset, valid_size_1, valid_size_2, data_aug)
 
         # We first initialize an expert
-        self.expert = Expert(dataset_manager.dataset_train, n_start, query_strategy)
+        self.expert = Expert(dataset_manager.dataset_train, n_start, query_strategy, init_sampling_seed)
 
         # We initialize DataLoaderManager and save DatasetManager
         self.loader_manager = DataLoaderManager(dataset_manager, self.expert, batch_size, shuffle, num_workers)
@@ -71,7 +75,8 @@ class ActiveLearner:
         self.experiment_name = experiment_name + time.strftime("_%Y-%m-%d_%H-%M-%S")
 
         # We initialize attributes to keep track of active learning loops
-        self.loop_progress = []
+        self.query_instances = [0]
+        self.accuracy_progress = []
         self.best_accuracy = 0
         self.patience = patience
         self.patience_count = 0
@@ -84,7 +89,7 @@ class ActiveLearner:
                                            'epochs': epochs, 'valid_size_1': valid_size_1, 'valid_size_2': valid_size_2,
                                            'lr': lr, 'pretrained': pretrained, 'query_strategy:': query_strategy,
                                            'batch_size': batch_size, 'weight_decay': weight_decay, 'patience': patience,
-                                           'shuffle': shuffle, 'data_aug': data_aug}}
+                                           'shuffle': shuffle, 'data_aug': data_aug, 'seed': init_sampling_seed}}
 
     def update_labeled_items(self) -> None:
         """
@@ -104,14 +109,21 @@ class ActiveLearner:
         # We add training loss, valid loss, training accuracy and test accuracy to the dictionary
         self.history['Loops Progress'] = self.training_manager.results
 
+        # We add query instances
+        self.history['Query Instances'] = self.query_instances
+
         # We add the valid_2 accuracy over rounds
-        self.history['Validation-2 Accuracy Coordinates'] = self.loop_progress
+        self.history['Validation-2 Accuracy'] = self.accuracy_progress
 
         # We save the final test score
-        self.history['Final Test Score'] = self.training_manager.test_model(final_eval=True)
+        self.history['Final Test Score'] = round(self.training_manager.test_model(final_eval=True), NB_SAVE_DIGITS)
 
         # We save the stopping condition reached
         self.history['Premature Stop'] = True if self.patience_count == self.patience else False
+
+        # We save the labels history from the Expert
+        self.history['Label History'] = {self.expert.idx_to_class[k]: v for (k, v)
+                                         in self.expert.labeled_history.items()}
 
         # We dump the dictionary into a json file
         json_obj = json.dumps(self.history, indent=4)
@@ -119,11 +131,14 @@ class ActiveLearner:
             outfile.write(json_obj)
 
         # We save the plots
-        self.visualization_manager.show_labels_history(self.expert, show=True,
+        self.visualization_manager.show_labels_history(self.expert, show=False,
                                                        save_path=os.path.join(self.experiment_name, "labels_prog"))
 
-        self.visualization_manager.show_loss_acc_chart(self.training_manager.results,
+        self.visualization_manager.show_loss_acc_chart(self.training_manager.results, show=False,
                                                        save_path=os.path.join(self.experiment_name, "loss_acc_prog"))
+
+        self.visualization_manager.show_labels_piechart(self.expert, show=False,
+                                                        save_path=os.path.join(self.experiment_name, "labels_piechart"))
 
     def __call__(self, n_rounds: int) -> None:
         """
@@ -139,8 +154,7 @@ class ActiveLearner:
         print(f"Unlabeled items : {len(self.loader_manager.unlabeled_idx)}")
         print("Active Learning Started\n")
 
-        i = 0
-
+        i = 1
         while True:
             # We update a string that will be used for multiple prints
             loop_reference = f"Active Loop #{i}"
@@ -148,13 +162,12 @@ class ActiveLearner:
             # We train the model on labeled image in the training set
             print(f"{loop_reference} - Training...")
             self.training_manager.train_model(self.epochs)
-            self.visualization_manager.show_loss_acc_chart(self.training_manager.results)
 
             # We evaluate our model on the current test set
             print(f"{loop_reference} - Validation...")
-            accuracy = self.training_manager.test_model()
-            self.loop_progress.append((i*self.n_new, accuracy))
-            print(f"{loop_reference} - Validation-2 Accuracy {round(accuracy,4)}")
+            accuracy = round(self.training_manager.test_model(), 4)
+            self.accuracy_progress. append(accuracy)
+            print(f"{loop_reference} - Validation-2 Accuracy {accuracy}")
 
             # We evaluate the patience
             accuracy_diff = accuracy - self.best_accuracy
@@ -180,6 +193,7 @@ class ActiveLearner:
 
             # We request labels to our expert
             print(f"{loop_reference} - Labels Request")
+            self.query_instances.append(i*self.n_new)
             self.expert.add_labels(self.loader_manager.unlabeled_idx, unlabeled_softmax,
                                    self.n_new, self.dataset_manager.dataset_train)
 
