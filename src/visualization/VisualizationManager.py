@@ -199,3 +199,6 @@ class VisualizationManager:
         # We show the plot
         if show:
             plt.show()
+
+    @staticmethod
+    def load_results(folder_prefix: str, model: str, curve_label:str):
