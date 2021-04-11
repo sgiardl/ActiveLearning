@@ -139,8 +139,7 @@ class ActiveLearner:
         print(f"Unlabeled items : {len(self.loader_manager.unlabeled_idx)}")
         print("Active Learning Started\n")
 
-        i = 0
-
+        i = 1
         while True:
             # We update a string that will be used for multiple prints
             loop_reference = f"Active Loop #{i}"
@@ -152,7 +151,7 @@ class ActiveLearner:
             # We evaluate our model on the current test set
             print(f"{loop_reference} - Validation...")
             accuracy = self.training_manager.test_model()
-            self.loop_progress.append((i*self.n_new, accuracy))
+            self.loop_progress.append(((i-1)*self.n_new, accuracy))
             print(f"{loop_reference} - Validation-2 Accuracy {round(accuracy,4)}")
 
             # We evaluate the patience
