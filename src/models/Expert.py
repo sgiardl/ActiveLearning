@@ -100,7 +100,7 @@ class Expert:
         :return: tensor
         """
         softmax_outputs_max = 1 - torch.max(softmax_outputs, dim=1)[0]
-        _, max_uncertainty_indices = torch.sort(-softmax_outputs_max)
+        _, max_uncertainty_indices = torch.sort(softmax_outputs_max, descending=True)
         prioritisation_softmax_indices = max_uncertainty_indices[0:n]
         return prioritisation_softmax_indices
 
@@ -113,8 +113,8 @@ class Expert:
         :param n: Number of items to label
         :return: tensor
         """
-        sort_softmax_outputs, _ = torch.sort(-softmax_outputs)
-        margin = - sort_softmax_outputs[:, 0] + sort_softmax_outputs[:, 1]
+        sort_softmax_outputs, _ = torch.sort(softmax_outputs, descending=True, dim=1)
+        margin = sort_softmax_outputs[:, 0] - sort_softmax_outputs[:, 1]
         _, min_margin_indices = torch.sort(margin)
         prioritisation_softmax_indices = min_margin_indices[0:n]
         return prioritisation_softmax_indices
@@ -129,7 +129,7 @@ class Expert:
         :return: tensor
         """
         softmax_outputs_entropy = Categorical(probs=softmax_outputs).entropy()
-        _, max_entropy_indices = torch.sort(-softmax_outputs_entropy)
+        _, max_entropy_indices = torch.sort(softmax_outputs_entropy, descending=True)
         prioritisation_softmax_indices = max_entropy_indices[0:n]
         return prioritisation_softmax_indices
 
