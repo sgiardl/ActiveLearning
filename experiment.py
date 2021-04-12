@@ -72,7 +72,7 @@ def argument_parser():
     args = parser.parse_args()
 
     # Print arguments
-    print("\n The inputs are:")
+    print("\nThe inputs are:")
     for arg in vars(args):
         print("{}: {}".format(arg, getattr(args, arg)))
     print("\n")
@@ -100,6 +100,12 @@ def main():
     data_aug = args.data_aug
     n_rounds = args.n_rounds
     init_sampling_seed = args.init_sampling_seed
+
+    if pretrained:
+        pretrained = True
+
+    if data_aug:
+        data_aug = True
 
     # Active learning model
     active_learner = ActiveLearner(model, dataset, n_start=n_start, n_new=n_new, epochs=epochs,
