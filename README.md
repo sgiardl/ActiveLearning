@@ -76,35 +76,47 @@ python3 experiment.py --model='SqueezeNet11' --dataset='CIFAR10' --epochs=50
 
 ## Project Organization
 
-    ├── README.md          <- The top-level README for developers using this project.
+    │
+    ├── Experiments        	 <- Scripts to run the experiments as stated in the report.
+    │   └── Generalization.py    <- Generalization experiments.
+    │   └── Helpers.py   	 <- Helper functions.
+    │   └── Pretraining.py 	 <- Pretraining experiments.
+    │   └── QueryStrategy.py     <- Query strategy experiments.
     │
     ├── data
-    │   └── raw            <- The original, immutable data dump. This is where the data gets downloaded.
+    │   └── raw            	 <- The original, immutable data dump. 
+    │			      	    This is where the data gets downloaded.
     │
-    ├── models             <- Trained and serialized models, model predictions, or model summaries
+    ├── models             	 <- Trained and serialized models, model predictions, or model summaries
     │
-    ├── reports            <- Generated analysis as PDF and LaTeX.
-    │   └── figures        <- Generated graphics and figures to be used in reporting
+    ├── reports            	 <- Generated analysis as PDF and LaTeX.
+    │   └── figures        	 <- Generated graphics and figures to be used in reporting
+    │	
+    ├── requirements.txt   	 <- The requirements file for reproducing the analysis environment,
+    │                         	    generated with `pipreqs path/to/folder`
     │
-    ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-    │                         generated with `pip freeze > requirements.txt`
-    │
-    ├── src                <- Source code for use in this project.
-    │   ├── data           <- Scripts to download or generate data
+    ├── src                	 <- Source code for use in this project.
+    │   ├── data           	 <- Scripts to download or generate data
     │   │   ├── DataLoaderManager.py
     │   │   ├── DatasetManager.py
     │   │   └── constants.py
     │   │
-    │   ├── models         <- Scripts to train models and then use trained models to make
-    │   │   │                 predictions
+    │   ├── models         	 <- Scripts to train models and then use trained models to make
+    │   │   │                 	    predictions
     │   │   ├── ActiveLearning.py
     │   │   ├── Expert.py
     │   │   ├── TrainValidTestManager.py
     │   │   └── constants.py
     │   │
-    │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
+    │   └── visualization  	 <- Scripts to create exploratory and results oriented visualizations
     │       └── VisualizationManager.py
     │
+    ├── .gitignore          	 <- File that lists which files git can ignore.
+    
+│
+    ├── README.md          	 <- The top-level README for developers using this project.
+
+│
     ├── test_environment.py      <- Test environment to test the active learning loop.
     │
     ├── experiment.py      	 <- Argument parser to get command line arguments
