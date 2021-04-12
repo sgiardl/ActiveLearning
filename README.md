@@ -3,6 +3,11 @@
 This repository contains the term project for neural networks class (IFT780) 
 at Université de Sherbrooke (Winter 2021).
 
+## Authors
+* Abir Riahi
+* Nicolas Raymond
+* Simon Giard-Leroux
+
 ## Introduction
 This project implements active learning methods for deep neural networks. The goal is
 to compare different active learning sampling criteria using different models and datasets
@@ -74,17 +79,12 @@ python3 experiment.py --model='SqueezeNet11' --dataset='CIFAR10' --epochs=50
     ├── README.md          <- The top-level README for developers using this project.
     │
     ├── data
-    │   └── raw            <- The original, immutable data dump.
-    │       ├── cifar-10-batches-py
-    │       └── cifar-10-python.tar.gz
-    │
-    ├── experiment.py      <- Argument parser to get command line arguments
+    │   └── raw            <- The original, immutable data dump. This is where the data gets downloaded.
     │
     ├── models             <- Trained and serialized models, model predictions, or model summaries
     │
     ├── reports            <- Generated analysis as PDF and LaTeX.
     │   └── figures        <- Generated graphics and figures to be used in reporting
-    │       └── PBAL.png
     │
     ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
     │                         generated with `pip freeze > requirements.txt`
@@ -105,12 +105,11 @@ python3 experiment.py --model='SqueezeNet11' --dataset='CIFAR10' --epochs=50
     │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
     │       └── VisualizationManager.py
     │
-    └── test_environment.py      <- Test environment to test the active learning loop.
-
-## Authors
-* Abir Riahi
-* Nicolas Raymond
-* Simon Giard-Leroux
+    ├── test_environment.py      <- Test environment to test the active learning loop.
+    │
+    ├── experiment.py      	 <- Argument parser to get command line arguments
+    │
+    └── extract_results_plots.py <- File to load results and plot active learning curves.
 
 --------
 
