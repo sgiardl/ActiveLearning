@@ -99,7 +99,7 @@ class Expert:
         :param n: Number of items to label
         :return: tensor
         """
-        softmax_outputs_max, _ = torch.max(1 - softmax_outputs, dim=1)
+        softmax_outputs_max = 1 - torch.max(softmax_outputs, dim=1)[0]
         _, max_uncertainty_indices = torch.sort(-softmax_outputs_max)
         prioritisation_softmax_indices = max_uncertainty_indices[0:n]
         return prioritisation_softmax_indices
