@@ -7,7 +7,7 @@ from Helpers import send_experiment_cmds
 EXPERIMENT_NAME = 'query_strategy'
 
 FIXED_SQUEEZENET_CMDS = ['-en', EXPERIMENT_NAME, '--model', SQUEEZE_NET_1_1, '--dataset', CIFAR10, '--n_start', '100',
-                         '--n_new', '100', '--epochs', '10', '--batch_size', '50', '--learning_rate', '0.0001',
+                         '--n_new', '250', '--epochs', '10', '--batch_size', '50', '--learning_rate', '0.0001',
                          '--n_rounds', '20', '--patience', '3', '--data_aug', '--weight_decay', '0.005',
                          '--query_strategy']
 
