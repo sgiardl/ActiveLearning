@@ -23,4 +23,4 @@ def combination_generator(fixed_model_param):
 
 
 if __name__ == '__main__':
-    send_experiment_cmds(combination_generator, FIXED_SQUEEZENET_CMDS, FIXED_SQUEEZENET_CMDS)
+    send_experiment_cmds(combination_generator, FIXED_SQUEEZENET_CMDS, FIXED_RESNET_CMDS)

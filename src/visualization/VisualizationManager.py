@@ -190,6 +190,7 @@ class VisualizationManager:
         records_list = self.load_results(folder_prefix, model)
 
         # Plot each accuracy list  with the corresponding parameter
+        records_list.sort(key=lambda r: r['Initialization'][curve_label])
         for records in records_list:
             plt.plot(records['Query Instances'],
                      records['Validation-2 Accuracy'],
@@ -199,7 +200,6 @@ class VisualizationManager:
         plt.ylabel('Training Accuracy')
         plt.xlabel('Number of Instance Queries')
         plt.legend(loc=self.legend_loc)
-        plt.ylim([0, 1])
 
         # We save it
         if save_path is not None:
