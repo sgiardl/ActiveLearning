@@ -1,3 +1,15 @@
+"""
+File:
+    Experiments/Helpers.py
+
+Authors:
+    - Abir Riahi
+    - Nicolas Raymond
+    - Simon Giard-Leroux
+
+Description:
+    Helper functions for the experiments.
+"""
 
 import time
 import subprocess as sp

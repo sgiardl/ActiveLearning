@@ -8,7 +8,7 @@ Authors:
     - Simon Giard-Leroux
 
 Description:
-    Parsing Python command line arguments
+    Parsing Python command line arguments to run an experiment.
 """
 
 import argparse
