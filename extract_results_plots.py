@@ -30,13 +30,13 @@ def argument_parser():
                         choices=[SQUEEZE_NET_1_1, RESNET18],
                         help=f"Name of the model to train ({SQUEEZE_NET_1_1} or {RESNET18})")
 
-    parser.add_argument('-fp', '--folder_prefix', type=str, default='query_strategy',
+    parser.add_argument('-fp', '--folder_prefix', type=str, default='generalization',
                         help=f"Start of the folders name from which to extract results")
 
     parser.add_argument('-c', '--curve_label', type=str, default='query_strategy',
                         help=f"Labels to use in order to compare validation accuracy curve")
 
-    parser.add_argument('-s', '--save_path', type=str, default='accuracy_curves',
+    parser.add_argument('-s', '--save_path', type=str, default='accuracy_curve',
                         help=f"Name of the file containing the resulting plot")
 
     args = parser.parse_args()
