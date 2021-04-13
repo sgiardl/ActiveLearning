@@ -4,9 +4,9 @@ This repository contains the term project for neural networks class (IFT780)
 at Université de Sherbrooke (Winter 2021).
 
 ## Authors
-* Abir Riahi
-* Nicolas Raymond
-* Simon Giard-Leroux
+* Abir Riahi (https://github.com/riaa3102)
+* Nicolas Raymond (https://github.com/Rayn2402)
+* Simon Giard-Leroux (https://github.com/sgiardl / https://github.com/gias2402)
 
 ## Introduction
 This project implements active learning methods for deep neural networks. The goal is
