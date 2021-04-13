@@ -21,7 +21,7 @@ This figure shows the implemented pool-based active learning framework:
 * SqueezeNet 1.1
 
 **Datasets:**
-* EMNIST (62 classes)
+* EMNIST 'balanced' split (62 classes)
 * CIFAR10 (10 classes)
 
 **Query strategies:**
