@@ -25,7 +25,7 @@ This figure shows the implemented pool-based active learning framework:
 * CIFAR10 (10 classes)
 
 **Query strategies:**
-* Least Confidence (LC)
+* Least Confidence
 * Margin Sampling
 * Entropy Sampling
 * Random Sampling
@@ -38,13 +38,11 @@ $ pip3 install -r requirements.txt
 
 ## Module Details: **experiment.py**
 
-### Description:
+### Description
 
-This program enables user to experiment different models of classification using passive or active learning.
+This program enables users to experiment different models of classification using passive or active learning.
 
-### Arguments:
-
-**Reference table**
+### Arguments
 
 | Short 	| Long              	    | Type    	| Default           	| Choices                                                                       	| Description                                                                   	|
 |-------	|-----------------------	|---------	|-------------------	|-------------------------------------------------------------------------------	|-------------------------------------------------------------------------------	|
@@ -89,6 +87,26 @@ To run the query strategy experiments batch:
 ```
 python3 Experiments/QueryStrategy.py
 ```
+
+## Module Details: **extract_results_plot.py**
+
+### Description
+
+This program enables users to extract results and plot a learning curve for specific experiments that have been performed previously.
+
+### Arguments
+
+| Short 	| Long              	    | Type    	| Default           	| Choices                                                                       	| Description                                                                   	|
+|-------	|-----------------------	|---------	|-------------------	|-------------------------------------------------------------------------------	|-------------------------------------------------------------------------------	|
+| `-m`    	| `--model`           	    | str     	| `'SqueezeNet11'`    	| [`'SqueezeNet11', 'ResNet34'`]                                                  	| Name of the model to train                                                    	|
+| `-fp`    	| `--folder_prefix`         	    | str     	| `'generalization'`         	|                                                          	| Start of the folders name from which to extract results                                               	|
+| `-c`   	| `--curve_label`         	    | str     	| `query_strategy`               	|                                                                               	| Labels to use in order to compare validation accuracy curve
+| `-s`   	| `--save_path`           	    | str     	| `accuracy_curve`               	|                                                                               	| Name of the file containing the resulting plot 	|
+
+``-h``, ``--help``
+show this help message and exit
+
+### Examples of basic use:
 
 To plot the active learning curve for a particular experiments batch:
 ```
