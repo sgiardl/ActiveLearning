@@ -69,13 +69,36 @@ show this help message and exit
 
 ### Examples of basic use:
 
+To run a single experiment:
 ```
 python3 experiment.py
 python3 experiment.py --model='SqueezeNet11' --dataset='CIFAR10' --epochs=50
 ```
 
+To run the generalization experiments batch:
+```
+python3 Experiments/Generalization.py
+```
+
+To run the pretraining experiments batch:
+```
+python3 Experiments/Pretraining.py
+```
+
+To run the query strategy experiments batch:
+```
+python3 Experiments/QueryStrategy.py
+```
+
+To plot the active learning curve for a particular experiments batch:
+```
+python3 extract_results_plots.py -m='SqueezeNet11' -fp='generalization' -c='query_strategy' -s='gen_accuracy'
+```
+
 ## Project Organization
 
+    ├── data
+    │   └── raw            	 <- The original, immutable data dump, where the data gets downloaded.
     │
     ├── Experiments        	 <- Scripts to run the experiments as stated in the report.
     │   └── Generalization.py    <- Generalization experiments.
@@ -83,17 +106,10 @@ python3 experiment.py --model='SqueezeNet11' --dataset='CIFAR10' --epochs=50
     │   └── Pretraining.py 	 <- Pretraining experiments.
     │   └── QueryStrategy.py     <- Query strategy experiments.
     │
-    ├── data
-    │   └── raw            	 <- The original, immutable data dump. 
-    │			      	    This is where the data gets downloaded.
-    │
     ├── models             	 <- Trained and serialized models, model predictions, or model summaries
     │
     ├── reports            	 <- Generated analysis as PDF and LaTeX.
     │   └── figures        	 <- Generated graphics and figures to be used in reporting
-    │	
-    ├── requirements.txt   	 <- The requirements file for reproducing the analysis environment,
-    │                         	    generated with `pipreqs path/to/folder`
     │
     ├── src                	 <- Source code for use in this project.
     │   ├── data           	 <- Scripts to download or generate data
@@ -112,16 +128,17 @@ python3 experiment.py --model='SqueezeNet11' --dataset='CIFAR10' --epochs=50
     │       └── VisualizationManager.py
     │
     ├── .gitignore          	 <- File that lists which files git can ignore.
-    
-│
+    │
     ├── README.md          	 <- The top-level README for developers using this project.
-
-│
-    ├── test_environment.py      <- Test environment to test the active learning loop.
     │
     ├── experiment.py      	 <- Argument parser to get command line arguments
     │
-    └── extract_results_plots.py <- File to load results and plot active learning curves.
+    ├── extract_results_plots.py <- File to load results and plot active learning curves.
+    │
+    ├── requirements.txt   	 <- The requirements file for reproducing the analysis environment,
+    │                         	    generated with `pipreqs path/to/folder`
+    │
+    └── test_environment.py      <- Test environment to test the active learning loop.
 
 --------
 
