@@ -124,7 +124,7 @@ python3 extract_results_plots.py -m='SqueezeNet11' -fp='generalization' -c='quer
     │   └── Pretraining.py 	 	<- Pretraining experiments.
     │   └── QueryStrategy.py     	<- Query strategy experiments.
     │
-    │── figures				<- Generated figures.
+    │── figures			<- Generated figures.
     │
     ├── models             	 	<- Trained and serialized models, model predictions, or model summaries
     │
