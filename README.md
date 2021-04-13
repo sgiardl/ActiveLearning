@@ -14,7 +14,7 @@ to compare different active learning sampling criteria using different models an
 for the image classification task.
 
 This figure shows the implemented pool-based active learning framework: 
-![Image of pool-based active learning framework](/report/figures/PBAL.png?raw=true)
+![Image of pool-based active learning framework](/figures/PBAL.png?raw=true)
 
 **Models:**
 * ResNet34
@@ -124,10 +124,11 @@ python3 extract_results_plots.py -m='SqueezeNet11' -fp='generalization' -c='quer
     │   └── Pretraining.py 	 	<- Pretraining experiments.
     │   └── QueryStrategy.py     	<- Query strategy experiments.
     │
+    │── figures        	 		<- Generated figures.
+    │
     ├── models             	 	<- Trained and serialized models, model predictions, or model summaries
     │
     ├── reports            	 	<- Generated analysis as PDF and LaTeX.
-    │   └── figures        	 	<- Generated graphics and figures to be used in reporting
     │
     ├── src                	 	<- Source code for use in this project.
     │   ├── data           	 	<- Scripts to download or generate data
