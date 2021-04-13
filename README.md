@@ -144,7 +144,7 @@ python3 extract_results_plots.py -m='SqueezeNet11' -fp='generalization' -c='quer
     │   └── visualization  	 	<- Scripts to create exploratory and results oriented visualizations
     │       └── VisualizationManager.py
     │
-    ├── .gitignore          	 	<- File that lists which files git can ignore.
+    ├── .gitignore			<- File that lists which files git can ignore.
     │
     ├── README.md          	 	<- The top-level README for developers using this project.
     │
@@ -153,7 +153,7 @@ python3 extract_results_plots.py -m='SqueezeNet11' -fp='generalization' -c='quer
     ├── extract_results_plots.py 	<- File to load results and plot active learning curves.
     │
     ├── requirements.txt   	 	<- The requirements file for reproducing the analysis environment,
-    │                         	    	   generated with `pipreqs path/to/folder`
+    │					   generated with `pipreqs path/to/folder`
     │
     └── test_environment.py      	<- Test environment to test the active learning loop.
 
