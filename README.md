@@ -3,6 +3,11 @@
 This repository contains the term project for neural networks class (IFT780) 
 at Université de Sherbrooke (Winter 2021).
 
+## Authors
+* Abir Riahi
+* Nicolas Raymond
+* Simon Giard-Leroux
+
 ## Introduction
 This project implements active learning methods for deep neural networks. The goal is
 to compare different active learning sampling criteria using different models and datasets
@@ -16,11 +21,11 @@ This figure shows the implemented pool-based active learning framework:
 * SqueezeNet 1.1
 
 **Datasets:**
-* EMNIST (62 classes)
+* EMNIST 'balanced' split (62 classes)
 * CIFAR10 (10 classes)
 
 **Query strategies:**
-* Least Confidence (LC)
+* Least Confidence
 * Margin Sampling
 * Entropy Sampling
 * Random Sampling
@@ -33,13 +38,11 @@ $ pip3 install -r requirements.txt
 
 ## Module Details: **experiment.py**
 
-### Description:
+### Description
 
-This program enables user to experiment different models of classification using passive or active learning.
+This program enables users to experiment different models of classification using passive or active learning.
 
-### Arguments:
-
-**Reference table**
+### Arguments
 
 | Short 	| Long              	    | Type    	| Default           	| Choices                                                                       	| Description                                                                   	|
 |-------	|-----------------------	|---------	|-------------------	|-------------------------------------------------------------------------------	|-------------------------------------------------------------------------------	|
@@ -64,53 +67,95 @@ show this help message and exit
 
 ### Examples of basic use:
 
+To run a single experiment:
 ```
 python3 experiment.py
 python3 experiment.py --model='SqueezeNet11' --dataset='CIFAR10' --epochs=50
 ```
 
+To run the generalization experiments batch:
+```
+python3 Experiments/Generalization.py
+```
+
+To run the pretraining experiments batch:
+```
+python3 Experiments/Pretraining.py
+```
+
+To run the query strategy experiments batch:
+```
+python3 Experiments/QueryStrategy.py
+```
+
+## Module Details: **extract_results_plot.py**
+
+### Description
+
+This program enables users to extract results and plot a learning curve for specific experiments that have been performed previously.
+
+### Arguments
+
+| Short 	| Long              	    | Type    	| Default           	| Choices                                                                       	| Description                                                                   	|
+|-------	|-----------------------	|---------	|-------------------	|-------------------------------------------------------------------------------	|-------------------------------------------------------------------------------	|
+| `-m`    	| `--model`           	    | str     	| `'SqueezeNet11'`    	| [`'SqueezeNet11', 'ResNet34'`]                                                  	| Name of the model to train                                                    	|
+| `-fp`    	| `--folder_prefix`         	    | str     	| `'generalization'`         	|                                                          	| Start of the folders name from which to extract results                                               	|
+| `-c`   	| `--curve_label`         	    | str     	| `query_strategy`               	|                                                                               	| Labels to use in order to compare validation accuracy curve
+| `-s`   	| `--save_path`           	    | str     	| `accuracy_curve`               	|                                                                               	| Name of the file containing the resulting plot 	|
+
+``-h``, ``--help``
+show this help message and exit
+
+### Examples of basic use:
+
+To plot the active learning curve for a particular experiments batch:
+```
+python3 extract_results_plots.py -m='SqueezeNet11' -fp='generalization' -c='query_strategy' -s='gen_accuracy'
+```
+
 ## Project Organization
 
-    ├── README.md          <- The top-level README for developers using this project.
-    │
     ├── data
-    │   └── raw            <- The original, immutable data dump.
-    │       ├── cifar-10-batches-py
-    │       └── cifar-10-python.tar.gz
+    │   └── raw            	 	<- The original, immutable data dump, where the data gets downloaded.
     │
-    ├── experiment.py      <- Argument parser to get command line arguments
+    ├── Experiments        	 	<- Scripts to run the experiments as stated in the report.
+    │   └── Generalization.py    	<- Generalization experiments.
+    │   └── Helpers.py   	 	<- Helper functions.
+    │   └── Pretraining.py 	 	<- Pretraining experiments.
+    │   └── QueryStrategy.py     	<- Query strategy experiments.
     │
-    ├── models             <- Trained and serialized models, model predictions, or model summaries
+    ├── models             	 	<- Trained and serialized models, model predictions, or model summaries
     │
-    ├── reports            <- Generated analysis as PDF and LaTeX.
-    │   └── figures        <- Generated graphics and figures to be used in reporting
-    │       └── PBAL.png
+    ├── reports            	 	<- Generated analysis as PDF and LaTeX.
+    │   └── figures        	 	<- Generated graphics and figures to be used in reporting
     │
-    ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-    │                         generated with `pip freeze > requirements.txt`
-    │
-    ├── src                <- Source code for use in this project.
-    │   ├── data           <- Scripts to download or generate data
+    ├── src                	 	<- Source code for use in this project.
+    │   ├── data           	 	<- Scripts to download or generate data
     │   │   ├── DataLoaderManager.py
     │   │   ├── DatasetManager.py
     │   │   └── constants.py
     │   │
-    │   ├── models         <- Scripts to train models and then use trained models to make
-    │   │   │                 predictions
+    │   ├── models         	 	<- Scripts to train models and then use trained models to make predictions
     │   │   ├── ActiveLearning.py
     │   │   ├── Expert.py
     │   │   ├── TrainValidTestManager.py
     │   │   └── constants.py
     │   │
-    │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
+    │   └── visualization  	 	<- Scripts to create exploratory and results oriented visualizations
     │       └── VisualizationManager.py
     │
-    └── test_environment.py      <- Test environment to test the active learning loop.
-
-## Authors
-* Abir Riahi
-* Nicolas Raymond
-* Simon Giard-Leroux
+    ├── .gitignore			<- File that lists which files git can ignore.
+    │
+    ├── README.md          	 	<- The top-level README for developers using this project.
+    │
+    ├── experiment.py      	 	<- Argument parser to get command line arguments
+    │
+    ├── extract_results_plots.py 	<- File to load results and plot active learning curves.
+    │
+    ├── requirements.txt   	 	<- The requirements file for reproducing the analysis environment,
+    │					   generated with `pipreqs path/to/folder`
+    │
+    └── test_environment.py      	<- Test environment to test the active learning loop.
 
 --------
 
